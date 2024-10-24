@@ -1,0 +1,63 @@
+# Node modules
+/node_modules/
+/frontend/node_modules/
+/frontend/.vite/
+/frontend/dist/
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# Build output
+/frontend/build/
+/frontend/coverage/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE and OS specific files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Spring Boot specific
+/backend/target/
+.backend/.mvn/
+.backend/.idea/
+.backend/.classpath
+.backend/.project
+.backend/.settings/
+.backend/logs/
+.backend/*.log
+.backend/*.jar
+.backend/*.war
+.backend/*.zip
+.backend/*.tar.gz
+.backend/*.tar
+.backend/*.gz
+.backend/*.properties
+.backend/*.yml
+.backend/*.yaml
+.backend/*.json
+.backend/*.xml
+
+# Other files to ignore
+*.class
+*.jar
+*.war
+*.ear
+*.db
+*.h2.db
+*.sqlite
+*.sql
+*.log
+*.tmp
+*.bak
+*.swp
