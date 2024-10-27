@@ -29,4 +29,7 @@ public class Examiner {
     @NotBlank
     @Size(max = 10)
     private String phone;
+
+    @NotBlank
+    private String password;
 }

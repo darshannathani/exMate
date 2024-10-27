@@ -1,10 +1,10 @@
 package com.exMate.backend.repository;
 
+
+import com.exMate.backend.model.Candidate;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.exMate.backend.model.Examiner;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ExaminerRepository extends JpaRepository<Examiner, Integer> {
-
+public interface CandidateRepository extends JpaRepository<Candidate, Long> {
 }
