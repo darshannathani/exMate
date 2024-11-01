@@ -1,4 +1,4 @@
-package com.exMate.backend.controlller;
+package com.exMate.backend.controller;
 
 import com.exMate.backend.model.Candidate;
 import com.exMate.backend.model.Examiner;
@@ -16,25 +16,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/examiner")
 public class ExaminerController {
-    @Autowired
-    private ExaminerService ExaminerService;
+    
     @Autowired
     private ExaminerService examinerService;
-
-    @PostMapping
-    public ResponseEntity<?> addExaminer(@RequestBody Examiner examiner) {
-        try{
-            ExaminerService.addExaminer(examiner);
-            return new ResponseEntity<>(examiner, HttpStatus.CREATED);
-        } catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @GetMapping("{e_id}")
     public ResponseEntity<?> getExaminerById(@PathVariable int e_id){
         try{
-            return new ResponseEntity<>(ExaminerService.getExaminerById(e_id), HttpStatus.OK);
+            return new ResponseEntity<>(examinerService.getExaminerById(e_id), HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -43,7 +32,7 @@ public class ExaminerController {
     @PutMapping("{e_id}")
     public ResponseEntity<?> updateUser(@PathVariable int e_id, @RequestBody Examiner examiner){
         try{
-            return new ResponseEntity<>(ExaminerService.updateUser(e_id, examiner), HttpStatus.OK);
+            return new ResponseEntity<>(examinerService.updateUser(e_id, examiner), HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -52,7 +41,7 @@ public class ExaminerController {
     @GetMapping
     public ResponseEntity<?> getAllExaminers(){
         try{
-            return new ResponseEntity<>(ExaminerService.getAllExaminers(), HttpStatus.OK);
+            return new ResponseEntity<>(examinerService.getAllExaminers(), HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -61,7 +50,7 @@ public class ExaminerController {
     @DeleteMapping("{e_id}")
     public ResponseEntity<?> deleteExaminer(@PathVariable int e_id){
         try{
-            ExaminerService.deleteExaminer(e_id);
+            examinerService.deleteExaminer(e_id);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -72,7 +61,6 @@ public class ExaminerController {
     @PostMapping("/upload")
     public ResponseEntity<List<Candidate>> uploadCandidates(@RequestParam("file") MultipartFile file) {
         try {
-            System.out.println("File received: " + file.getOriginalFilename());
             List<Candidate> savedCandidates = examinerService.processExcelFile(file);
             return ResponseEntity.ok(savedCandidates);
         } catch (IOException e) {

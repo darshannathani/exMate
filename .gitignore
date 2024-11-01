@@ -56,7 +56,6 @@ Thumbs.db
 *.db
 *.h2.db
 *.sqlite
-*.sql
 *.log
 *.tmp
 *.bak

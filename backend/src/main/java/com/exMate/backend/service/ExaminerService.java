@@ -5,8 +5,6 @@ import com.exMate.backend.model.Examiner;
 import com.exMate.backend.repository.CandidateRepository;
 import com.exMate.backend.repository.ExaminerRepository;
 import org.apache.poi.ss.usermodel.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +17,6 @@ import java.util.*;
 
 @Service
 public class ExaminerService {
-    private static final Logger log = LoggerFactory.getLogger(ExaminerService.class);
 
     @Autowired
     private ExaminerRepository examinerRepository;
@@ -35,8 +32,10 @@ public class ExaminerService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    //TODO - Add check for redundant email and phone number
     public void addExaminer(Examiner examiner) {
+        if (examinerRepository.findByEmail(examiner.getEmail()) != null) {
+            throw new RuntimeException("Error: Email is already in use!");
+        }
         examiner.setPassword(passwordEncoder.encode(examiner.getPassword()));
         examinerRepository.save(examiner);
     }
@@ -84,7 +83,6 @@ public class ExaminerService {
                     Candidate candidate=extractCandidateFromRow(row,columnMap);
                     candidates.add(candidate);
                 } catch (Exception e) {
-                    log.error("Error processing row "+(i+1)+" : "+e.getMessage());
                     throw new RuntimeException("Error processing row "+(i+1)+": "+e.getMessage());
                 }
             }

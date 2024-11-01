@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ExaminerRepository extends JpaRepository<Examiner, Integer> {
 
+    Examiner findByEmail(String email);
+
 }
