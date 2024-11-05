@@ -5,6 +5,7 @@ import com.exMate.backend.payload.LoginRequest;
 import com.exMate.backend.repository.ExaminerRepository;
 import com.exMate.backend.security.JwtTokenProvider;
 import com.exMate.backend.service.ExaminerService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -22,29 +23,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private ExaminerRepository examinerRepository;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private ExaminerService examinerService;
-
-    @Autowired
     private JwtTokenProvider tokenProvider;
-
-    @PostMapping("/register/examiner")
-    public ResponseEntity<?> registerExaminer(@RequestBody Examiner examiner) {
-        try{
-            examinerService.addExaminer(examiner);
-            return new ResponseEntity<>(examiner, HttpStatus.CREATED);
-        } catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
@@ -64,7 +46,7 @@ public class AuthController {
             ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwt)
                     .path("/")
                     .maxAge(24 * 60 * 60)
-                    .httpOnly(true)
+                    .httpOnly(false)
                     .secure(false)
                     .sameSite("Lax")
                     .domain(null)
@@ -86,5 +68,15 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body("You've been signed out!");
+    }
+
+    @PostMapping("/me")
+    public ResponseEntity<?> getRole(HttpServletRequest request){
+        try{
+            String jwt = tokenProvider.getJwtFromCookies(request);
+            return new ResponseEntity<>(tokenProvider.getRole(jwt), HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

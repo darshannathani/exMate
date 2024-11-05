@@ -2,7 +2,9 @@ package com.exMate.backend.controller;
 
 import com.exMate.backend.model.Candidate;
 import com.exMate.backend.model.Examiner;
+import com.exMate.backend.security.JwtTokenProvider;
 import com.exMate.backend.service.ExaminerService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,9 @@ public class ExaminerController {
     
     @Autowired
     private ExaminerService examinerService;
+
+    @Autowired
+    private JwtTokenProvider tokenProvider;
 
     @GetMapping("{e_id}")
     public ResponseEntity<?> getExaminerById(@PathVariable int e_id){
@@ -57,7 +62,6 @@ public class ExaminerController {
         }
     }
 
-    @CrossOrigin(origins = "*")
     @PostMapping("/upload")
     public ResponseEntity<List<Candidate>> uploadCandidates(@RequestParam("file") MultipartFile file) {
         try {
@@ -67,6 +71,18 @@ public class ExaminerController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error processing file: " + e.getMessage());
         }
     }
+
+    @PostMapping("/register/examiner")
+    public ResponseEntity<?> registerExaminer(@RequestBody Examiner examiner) {
+        try{
+            examinerService.addExaminer(examiner);
+            return new ResponseEntity<>(examiner, HttpStatus.CREATED);
+        } catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 }
 
 

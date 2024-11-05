@@ -24,14 +24,11 @@ public class JwtTokenProvider {
     @Value("${app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    // Remove the old jwtSecret string and encodedSecretKey
-    // Instead, create a single secret key for all operations
     private final Key key;
 
     public JwtTokenProvider(@Value("${app.jwtSecret}") String secret) {
-        // Generate secure key from random bytes
         SecureRandom random = new SecureRandom();
-        byte[] keyBytes = new byte[64]; // 512 bits
+        byte[] keyBytes = new byte[64];
         random.nextBytes(keyBytes);
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
@@ -47,13 +44,13 @@ public class JwtTokenProvider {
                 .claim("role", userPrincipal.getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
-                .signWith(key)  // Use the key instance
+                .signWith(key)
                 .compact();
     }
 
     public String getUserIdFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)  // Use the same key instance
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -63,7 +60,7 @@ public class JwtTokenProvider {
 
     public String getRole(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)  // Use the same key instance
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -74,7 +71,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String authToken) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(key)  // Use the same key instance
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(authToken);
             return true;
@@ -108,8 +105,8 @@ public class JwtTokenProvider {
         return ResponseCookie.from("jwt", jwt)
                 .path("/")
                 .maxAge(24 * 60 * 60)
-                .httpOnly(true)
-                .secure(false)  // Set to true in production
+                .httpOnly(false)
+                .secure(false)
                 .sameSite("Lax")
                 .build();
     }

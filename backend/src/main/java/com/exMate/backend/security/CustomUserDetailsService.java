@@ -30,7 +30,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (candidate != null) {
             return UserPrincipal.createCandidate(candidate);
         }
-
         throw new UsernameNotFoundException("User not found with email : " + email);
     }
 
