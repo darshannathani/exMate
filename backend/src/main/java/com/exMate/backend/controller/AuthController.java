@@ -1,10 +1,7 @@
 package com.exMate.backend.controller;
 
-import com.exMate.backend.model.Examiner;
 import com.exMate.backend.payload.LoginRequest;
-import com.exMate.backend.repository.ExaminerRepository;
 import com.exMate.backend.security.JwtTokenProvider;
-import com.exMate.backend.service.ExaminerService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

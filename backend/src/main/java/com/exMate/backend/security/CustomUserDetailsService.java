@@ -1,9 +1,9 @@
 package com.exMate.backend.security;
 
 import com.exMate.backend.model.Candidate;
-import com.exMate.backend.model.Examiner;
+import com.exMate.backend.model.Admin;
 import com.exMate.backend.repository.CandidateRepository;
-import com.exMate.backend.repository.ExaminerRepository;
+import com.exMate.backend.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,16 +14,16 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private ExaminerRepository examinerRepository;
+    private AdminRepository adminRepository;
 
     @Autowired
     private CandidateRepository candidateRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Examiner examiner = examinerRepository.findByEmail(email);
-        if (examiner != null) {
-            return UserPrincipal.createExaminer(examiner);
+        Admin admin = adminRepository.findByEmail(email);
+        if (admin != null) {
+            return UserPrincipal.createExaminer(admin);
         }
 
         Candidate candidate = candidateRepository.findByEmail(email);
@@ -35,9 +35,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public UserDetails loadUserById(Integer id, String role) {
         if (role.equals("ROLE_EXAMINER")) {
-            Examiner examiner = examinerRepository.findById(id)
+            Admin admin = adminRepository.findById(id)
                     .orElseThrow(() -> new UsernameNotFoundException("Examiner not found with id : " + id));
-            return UserPrincipal.createExaminer(examiner);
+            return UserPrincipal.createExaminer(admin);
         } else {
             Candidate candidate = candidateRepository.findById(id)
                     .orElseThrow(() -> new UsernameNotFoundException("Candidate not found with id : " + id));

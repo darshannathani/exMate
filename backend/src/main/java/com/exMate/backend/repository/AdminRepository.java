@@ -1,12 +1,12 @@
 package com.exMate.backend.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.exMate.backend.model.Examiner;
+import com.exMate.backend.model.Admin;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ExaminerRepository extends JpaRepository<Examiner, Integer> {
+public interface AdminRepository extends JpaRepository<Admin, Integer> {
 
-    Examiner findByEmail(String email);
+    Admin findByEmail(String email);
 
 }
