@@ -1,9 +1,8 @@
 package com.exMate.backend.service;
 
 import com.exMate.backend.model.Candidate;
-import com.exMate.backend.model.Examiner;
 import com.exMate.backend.repository.CandidateRepository;
-import com.exMate.backend.repository.ExaminerRepository;
+import com.exMate.backend.repository.AdminRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,10 +15,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 @Service
-public class ExaminerService {
-
-    @Autowired
-    private ExaminerRepository examinerRepository;
+public class CandidateService {
 
     @Autowired
     private CandidateRepository candidateRepository;
@@ -27,48 +23,13 @@ public class ExaminerService {
     final private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public ExaminerService(ExaminerRepository examinerRepository) {
-        this.examinerRepository = examinerRepository;
+    public CandidateService(AdminRepository adminRepository) {
         this.passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    public void addExaminer(Examiner examiner) {
-        if (examinerRepository.findByEmail(examiner.getEmail()) != null) {
-            throw new RuntimeException("Error: Email is already in use!");
-        }
-        examiner.setPassword(passwordEncoder.encode(examiner.getPassword()));
-        examinerRepository.save(examiner);
-    }
-
-    public Examiner getExaminerById(int e_id) {
-        return examinerRepository.findById(e_id)
-                .orElseThrow(() -> new RuntimeException("Examiner not found"));
-    }
-
-    public Examiner updateUser(int e_id, Examiner examiner) {
-        Examiner existingExaminer = examinerRepository.findById(e_id)
-                .orElseThrow(() -> new RuntimeException("Examiner not found"));
-        existingExaminer.setName(examiner.getName());
-        existingExaminer.setEmail(examiner.getEmail());
-        existingExaminer.setPhone(examiner.getPhone());
-        existingExaminer.setPassword(passwordEncoder.encode(examiner.getPassword()));
-        return examinerRepository.save(existingExaminer);
-    }
-
-    public List<Examiner> getAllExaminers() {
-        return examinerRepository.findAll();
-    }
-
-    public void deleteExaminer(int e_id) {
-        if(!examinerRepository.existsById(e_id)) {
-            throw new RuntimeException("Examiner not found");
-        }
-        examinerRepository.deleteById(e_id);
     }
 
     public List<Candidate> processExcelFile(MultipartFile file) throws IOException {
         List<Candidate> candidates=new ArrayList<>();
-        try (Workbook workbook=WorkbookFactory.create(file.getInputStream())) {
+        try (Workbook workbook= WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet=workbook.getSheetAt(0);
             Row headerRow=sheet.getRow(0);
             Map<String,Integer> columnMap=new HashMap<>();

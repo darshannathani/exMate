@@ -1,7 +1,7 @@
 package com.exMate.backend.security;
 
 import com.exMate.backend.model.Candidate;
-import com.exMate.backend.model.Examiner;
+import com.exMate.backend.model.Admin;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,11 +19,11 @@ public class UserPrincipal implements UserDetails {
     private String password;
     private String role;
 
-    public static UserPrincipal createExaminer(Examiner examiner) {
+    public static UserPrincipal createExaminer(Admin admin) {
         return new UserPrincipal(
-                examiner.getE_id(),
-                examiner.getEmail(),
-                examiner.getPassword(),
+                admin.getE_id(),
+                admin.getEmail(),
+                admin.getPassword(),
                 "ROLE_EXAMINER"
         );
     }
