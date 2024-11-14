@@ -19,12 +19,12 @@ public class UserPrincipal implements UserDetails {
     private String password;
     private String role;
 
-    public static UserPrincipal createExaminer(Admin admin) {
+    public static UserPrincipal createAdmin(Admin admin) {
         return new UserPrincipal(
-                admin.getE_id(),
+                admin.getA_id(),
                 admin.getEmail(),
                 admin.getPassword(),
-                "ROLE_EXAMINER"
+                "ROLE_ADMIN"
         );
     }
 

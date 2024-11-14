@@ -24,37 +24,37 @@ public class AdminController {
     @Autowired
     private CandidateService candidateService;
 
-    @GetMapping("{e_id}")
-    public ResponseEntity<?> getExaminerById(@PathVariable int e_id){
+    @GetMapping("{a_id}")
+    public ResponseEntity<?> getAdminById(@PathVariable int a_id){
         try{
-            return new ResponseEntity<>(adminService.getExaminerById(e_id), HttpStatus.OK);
+            return new ResponseEntity<>(adminService.getAdminById(a_id), HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @PutMapping("{e_id}")
-    public ResponseEntity<?> updateUser(@PathVariable int e_id, @RequestBody Admin admin){
+    @PutMapping("{a_id}")
+    public ResponseEntity<?> updateUser(@PathVariable int a_id, @RequestBody Admin admin){
         try{
-            return new ResponseEntity<>(adminService.updateUser(e_id, admin), HttpStatus.OK);
+            return new ResponseEntity<>(adminService.updateUser(a_id, admin), HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllExaminers(){
+    public ResponseEntity<?> getAllAdmins(){
         try{
-            return new ResponseEntity<>(adminService.getAllExaminers(), HttpStatus.OK);
+            return new ResponseEntity<>(adminService.getAllAdmins(), HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @DeleteMapping("{e_id}")
-    public ResponseEntity<?> deleteExaminer(@PathVariable int e_id){
+    @DeleteMapping("{a_id}")
+    public ResponseEntity<?> deleteAdmin(@PathVariable int a_id){
         try{
-            adminService.deleteExaminer(e_id);
+            adminService.deleteAdmin(a_id);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -71,10 +71,10 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/register/examiner")
-    public ResponseEntity<?> registerExaminer(@RequestBody Admin admin) {
+    @PostMapping("/register/admin")
+    public ResponseEntity<?> registerAdmin(@RequestBody Admin admin) {
         try{
-            adminService.addExaminer(admin);
+            adminService.addAdmin(admin);
             return new ResponseEntity<>(admin, HttpStatus.CREATED);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

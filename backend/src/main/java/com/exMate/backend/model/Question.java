@@ -1,5 +1,7 @@
 package com.exMate.backend.model;
 
+import com.exMate.backend.enums.ExamDifficulty;
+import com.exMate.backend.enums.SectionType;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -20,14 +22,15 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int question_id;
 
-    @NotBlank
-    private String category;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-    @NotBlank
-    private String section;
+    @Enumerated(EnumType.STRING)
+    private SectionType section;
 
-    @NotBlank
-    private String difficulty;
+    @Enumerated(EnumType.STRING)
+    private ExamDifficulty difficulty;
 
     @NotBlank
     private String text;

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 
 @Entity
-@Table(name = "examiner", schema = "dbo")
+@Table(name = "admin", schema = "dbo")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +16,7 @@ public class Admin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int e_id;
+    private int a_id;
 
     @NotBlank
     @Size(max = 15)
