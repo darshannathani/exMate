@@ -72,4 +72,70 @@ public class QuestionController {
         }
     }
 
+    @GetMapping("category/{category}")
+    public ResponseEntity<?> getQuestionsByCategory(@PathVariable String category){
+        try{
+            return ResponseEntity.ok(questionService.getQuestionsByCategory(category));
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid category");
+        }
+    }
+
+    @PutMapping("/option/{o_id}")
+    public ResponseEntity<?> updateOption(@PathVariable int o_id, @RequestBody MCQOption option){
+        try{
+            return ResponseEntity.ok(questionService.updateOption(o_id, option));
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid option");
+        }
+    }
+
+    @GetMapping("/option/{o_id}")
+    public ResponseEntity<?> getOptionById(@PathVariable int o_id){
+        try{
+            return ResponseEntity.ok(questionService.getOptionById(o_id));
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid option");
+        }
+    }
+
+    @GetMapping("/option")
+    public ResponseEntity<?> getAllOptions(){
+        try{
+            return ResponseEntity.ok(questionService.getAllOptions());
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid option");
+        }
+    }
+
+    @DeleteMapping("/option/{o_id}")
+    public ResponseEntity<?> deleteOption(@PathVariable int o_id){
+        try{
+            questionService.deleteOption(o_id);
+            return ResponseEntity.ok("Option deleted");
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid option");
+        }
+    }
+
+    @GetMapping("/option/question/{q_id}")
+    public ResponseEntity<?> getOptionsByQuestionId(@PathVariable int q_id){
+        try{
+            return ResponseEntity.ok(questionService.getOptionsByQuestionId(q_id));
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid question");
+        }
+    }
+
+    @DeleteMapping("/option/question/{q_id}")
+    public ResponseEntity<?> deleteOptionsByQuestionId(@PathVariable int q_id){
+        try{
+            questionService.deleteOptionsByQuestionId(q_id);
+            return ResponseEntity.ok("Options deleted");
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid question");
+        }
+    }
+
+
 }
