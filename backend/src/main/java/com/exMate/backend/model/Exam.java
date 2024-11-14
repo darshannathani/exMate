@@ -1,12 +1,10 @@
 package com.exMate.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.exMate.backend.enums.ExamDifficulty;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -35,5 +33,16 @@ public class Exam {
     @NotBlank
     private String category;
 
-    private String difficulty;
+    @Enumerated(EnumType.STRING)
+    private ExamDifficulty difficulty;
+
+    @NotBlank
+    private int Total_marks;
+
+    @NotNull
+    private int duration;
+
+    private LocalDateTime start_date;
+
+    private LocalDateTime end_date;
 }

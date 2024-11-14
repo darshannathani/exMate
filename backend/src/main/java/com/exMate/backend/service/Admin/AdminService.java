@@ -23,7 +23,7 @@ public class AdminService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public void addExaminer(Admin admin) {
+    public void addAdmin(Admin admin) {
         if (adminRepository.findByEmail(admin.getEmail()) != null) {
             throw new RuntimeException("Error: Email is already in use!");
         }
@@ -31,14 +31,14 @@ public class AdminService {
         adminRepository.save(admin);
     }
 
-    public Admin getExaminerById(int e_id) {
-        return adminRepository.findById(e_id)
-                .orElseThrow(() -> new RuntimeException("Examiner not found"));
+    public Admin getAdminById(int a_id) {
+        return adminRepository.findById(a_id)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
     }
 
-    public Admin updateUser(int e_id, Admin admin) {
-        Admin existingAdmin = adminRepository.findById(e_id)
-                .orElseThrow(() -> new RuntimeException("Examiner not found"));
+    public Admin updateUser(int a_id, Admin admin) {
+        Admin existingAdmin = adminRepository.findById(a_id)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
         existingAdmin.setName(admin.getName());
         existingAdmin.setEmail(admin.getEmail());
         existingAdmin.setPhone(admin.getPhone());
@@ -46,14 +46,14 @@ public class AdminService {
         return adminRepository.save(existingAdmin);
     }
 
-    public List<Admin> getAllExaminers() {
+    public List<Admin> getAllAdmins() {
         return adminRepository.findAll();
     }
 
-    public void deleteExaminer(int e_id) {
-        if(!adminRepository.existsById(e_id)) {
-            throw new RuntimeException("Examiner not found");
+    public void deleteAdmin(int a_id) {
+        if(!adminRepository.existsById(a_id)) {
+            throw new RuntimeException("Admin not found");
         }
-        adminRepository.deleteById(e_id);
+        adminRepository.deleteById(a_id);
     }
 }

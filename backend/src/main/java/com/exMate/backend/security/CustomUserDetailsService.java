@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Admin admin = adminRepository.findByEmail(email);
         if (admin != null) {
-            return UserPrincipal.createExaminer(admin);
+            return UserPrincipal.createAdmin(admin);
         }
 
         Candidate candidate = candidateRepository.findByEmail(email);
@@ -34,10 +34,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     public UserDetails loadUserById(Integer id, String role) {
-        if (role.equals("ROLE_EXAMINER")) {
+        if (role.equals("ROLE_ADMIN")) {
             Admin admin = adminRepository.findById(id)
-                    .orElseThrow(() -> new UsernameNotFoundException("Examiner not found with id : " + id));
-            return UserPrincipal.createExaminer(admin);
+                    .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id : " + id));
+            return UserPrincipal.createAdmin(admin);
         } else {
             Candidate candidate = candidateRepository.findById(id)
                     .orElseThrow(() -> new UsernameNotFoundException("Candidate not found with id : " + id));
