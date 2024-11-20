@@ -1,7 +1,7 @@
 package com.exMate.backend.enums;
 
 public enum ExamDifficulty {
-    EASY,
-    MEDIUM,
-    HARD
+    Easy,
+    Medium,
+    Hard
 }

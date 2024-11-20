@@ -3,6 +3,7 @@ package com.exMate.backend.controller.Admin;
 import com.exMate.backend.enums.ExamDifficulty;
 import com.exMate.backend.model.Exam;
 import com.exMate.backend.service.Admin.ExamService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +14,11 @@ import java.util.Map;
 @RequestMapping("/admin/exam")
 public class ExamController {
 
+    @Autowired
     private ExamService examService;
 
     @PostMapping
-    public ResponseEntity<?> scheduleExam(int exam_id) {
+    public ResponseEntity<?> scheduleExam(@RequestBody int exam_id) {
         try{
             return ResponseEntity.ok(examService.scheduleExam(exam_id));
         } catch(Exception e){
@@ -25,9 +27,9 @@ public class ExamController {
     }
 
     @PutMapping("/update/{exam_id}")
-    public ResponseEntity<?> updateExam(@PathVariable int exam_id) {
+    public ResponseEntity<?> updateExam(@PathVariable int exam_id, @RequestBody Map<String,Object> request) {
         try{
-            return ResponseEntity.ok(examService.updateExam(exam_id));
+            return ResponseEntity.ok(examService.updateExam(exam_id,request));
         } catch(Exception e){
             return ResponseEntity.badRequest().body("Error: Invalid exam");
         }
@@ -62,24 +64,11 @@ public class ExamController {
     }
 
     @PostMapping("/create-exam")
-    public ResponseEntity<?> createExam(@RequestBody Map<String,Object> request) {
+    public ResponseEntity<?> createExam(@RequestBody Exam exam) {
         try{
-            Exam exam = new Exam();
-            exam.setTitle((String) request.get("title"));
-            exam.setDescription((String) request.get("description"));
-            exam.setTotal_question((int) request.get("total_question"));
-            exam.setPassing_score((Integer) request.get("passing_score"));
-            exam.setStatus((String) request.get("status"));
-            exam.setCategory((String) request.get("category"));
-            exam.setDifficulty(ExamDifficulty.valueOf((String) request.get("difficulty")));
-            exam.setStart_date(LocalDateTime.parse((CharSequence) request.get("start_date")));
-            exam.setEnd_date(LocalDateTime.parse((CharSequence) request.get("end_date")));
-            int MCQ = (int) request.get("MCQ");
-            int programming = (int) request.get("programming");
-            int database = (int) request.get("database");
-            return ResponseEntity.ok(examService.createExam(exam,MCQ,programming,database));
+            return ResponseEntity.ok(examService.createExam(exam));
         } catch(Exception e){
-            return ResponseEntity.badRequest().body("Error: Invalid exam");
+            return ResponseEntity.badRequest().body("Error: "+ e);
         }
     }
 
