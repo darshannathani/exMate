@@ -9,8 +9,6 @@ import com.exMate.backend.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class QuestionService {
 
@@ -30,26 +28,22 @@ public class QuestionService {
     }
 
     public Question addQuestion(Question question, String categoryName) {
-        // Check if category exists, if not create a new one
         Category category = categoryRepository.findByName(categoryName)
                 .orElseGet(() -> categoryRepository.save(new Category(null, categoryName, null)));
 
-        // Set category in the question
         question.setCategory(category);
         return questionRepository.save(question);
     }
 
     public Question updateQuestion(int q_id, Question question, String categoryName) {
-        // Check if category exists, if not create a new one
         Category category = categoryRepository.findByName(categoryName)
                 .orElseGet(() -> categoryRepository.save(new Category(null, categoryName, null)));
 
         Question existingQuestion = questionRepository.findById(q_id)
                 .orElseThrow(() -> new RuntimeException("Question not found with id: " + q_id));
 
-        // Update fields in the existing question
         existingQuestion.setCategory(category);
-        existingQuestion.setSection(question.getSection());
+        existingQuestion.setSection_type(question.getSection_type());
         existingQuestion.setDifficulty(question.getDifficulty());
         existingQuestion.setText(question.getText());
         existingQuestion.setImage(question.getImage());

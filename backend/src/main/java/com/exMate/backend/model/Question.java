@@ -2,6 +2,7 @@ package com.exMate.backend.model;
 
 import com.exMate.backend.enums.ExamDifficulty;
 import com.exMate.backend.enums.SectionType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -23,11 +24,11 @@ public class Question {
     private int question_id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "cat_id")
     private Category category;
 
     @Enumerated(EnumType.STRING)
-    private SectionType section;
+    private SectionType section_type;
 
     @Enumerated(EnumType.STRING)
     private ExamDifficulty difficulty;
@@ -44,4 +45,8 @@ public class Question {
     @JsonManagedReference
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MCQOption> options;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ExamQuestionMapping> question;
 }

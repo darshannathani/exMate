@@ -1,6 +1,7 @@
 package com.exMate.backend.controller.Admin;
 
 import com.exMate.backend.enums.ExamDifficulty;
+import com.exMate.backend.model.Category;
 import com.exMate.backend.model.MCQOption;
 import com.exMate.backend.model.Question;
 import com.exMate.backend.enums.SectionType;
@@ -21,37 +22,33 @@ public class QuestionController {
     @PostMapping
     public ResponseEntity<?> addQuestion(@RequestBody Map<String, Object> request) {
         try {
-            // Extract question object and category name from the request body
             Question question = new Question();
             question.setText((String) request.get("text"));
             question.setDifficulty(ExamDifficulty.valueOf((String) request.get("difficulty")));
-            question.setSection(SectionType.valueOf((String) request.get("section")));
+            question.setSection_type(SectionType.valueOf((String) request.get("section")));
             question.setImage((String) request.get("image"));
             question.setMarks((int) request.get("marks"));
 
             String categoryName = (String) request.get("category");
 
-            // Call the service to add the question
             return ResponseEntity.ok(questionService.addQuestion(question, categoryName));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: Invalid question");
+            return ResponseEntity.badRequest().body("Error: "+e);
         }
     }
 
     @PutMapping("{q_id}")
     public ResponseEntity<?> updateQuestion(@PathVariable int q_id, @RequestBody Map<String, Object> request) {
         try {
-            // Extract question object and category name from the request body
             Question question = new Question();
             question.setText((String) request.get("text"));
             question.setDifficulty(ExamDifficulty.valueOf((String) request.get("difficulty")));
-            question.setSection(SectionType.valueOf((String) request.get("section")));
+            question.setSection_type(SectionType.valueOf((String) request.get("section")));
             question.setImage((String) request.get("image"));
             question.setMarks((int) request.get("marks"));
 
             String categoryName = (String) request.get("category");
 
-            // Call the service to update the question
             return ResponseEntity.ok(questionService.updateQuestion(q_id, question, categoryName));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: Invalid question");
@@ -72,7 +69,7 @@ public class QuestionController {
         try {
             return ResponseEntity.ok(questionService.getAllQuestions());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: Invalid question");
+            return ResponseEntity.badRequest().body("Error:" + e);
         }
     }
 
