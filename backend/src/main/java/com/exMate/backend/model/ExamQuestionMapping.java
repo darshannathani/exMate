@@ -17,12 +17,10 @@ public class ExamQuestionMapping {
     private Integer map_id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "e_id")
+    @JoinColumn(name = "ex_id")
     private Exam exam;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "q_id")
+    @JoinColumn(name = "ques_id")
     private Question question;
-
-    // getters and setters
 }

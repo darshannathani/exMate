@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface ExamQuestionMappingRepository extends JpaRepository<ExamQuestionMapping, Integer> {
 
+    List<ExamQuestionMapping> findByExam_Id(int exam_id);
 }
