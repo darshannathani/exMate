@@ -72,14 +72,14 @@ public class ExamController {
         }
     }
 
-//    @GetMapping("/{exam_id}/questions")
-//    public ResponseEntity<?> getQuestionsByExam(@PathVariable int exam_id) {
-//        try{
-//            return ResponseEntity.ok(examService.getQuestionsByExam(exam_id));
-//        } catch(Exception e){
-//            return ResponseEntity.badRequest().body("Error: Invalid exam");
-//        }
-//    }
+    @GetMapping("/{exam_id}/questions")
+    public ResponseEntity<?> getQuestionsByExam(@PathVariable int exam_id) {
+        try{
+            return ResponseEntity.ok(examService.getQuestionsByExam(exam_id));
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid exam");
+        }
+    }
 //
 //    @PutMapping("/{exam_id}/questions")
 //    public ResponseEntity<?> regernateQuestions(@PathVariable int exam_id, @RequestBody String difficulty) {
@@ -90,13 +90,13 @@ public class ExamController {
 //        }
 //    }
 //
-//    @PutMapping("/{exam_id}/update-difficulty")
-//    public ResponseEntity<?> updateDifficulty(@PathVariable int exam_id, @RequestBody String difficulty) {
-//        try{
-//            return ResponseEntity.ok(examService.updateDifficulty(exam_id,difficulty));
-//        } catch(Exception e){
-//            return ResponseEntity.badRequest().body("Error: Invalid exam");
-//        }
-//    }
+    @PutMapping("/{exam_id}/update-difficulty")
+    public ResponseEntity<?> updateDifficulty(@PathVariable int exam_id, @RequestBody String difficulty) {
+        try{
+            return ResponseEntity.ok(examService.updateDifficulty(exam_id,difficulty));
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid exam");
+        }
+    }
 
 }

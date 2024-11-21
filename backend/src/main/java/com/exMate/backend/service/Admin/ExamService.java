@@ -1,6 +1,7 @@
 package com.exMate.backend.service.Admin;
 
 import com.exMate.backend.enums.ExamDifficulty;
+import com.exMate.backend.enums.SectionType;
 import com.exMate.backend.model.Exam;
 import com.exMate.backend.model.Question;
 import com.exMate.backend.model.ExamQuestionMapping;
@@ -13,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ExamService {
@@ -85,58 +88,87 @@ public class ExamService {
     }
 
     public Exam createExam(Exam exam) {
-        System.out.println(exam);
-        try
-        {
+        try {
             Exam savedExam = examRepository.save(exam);
 
+            List<Question> allQuestions = questionRepository.findAll();
 
-        System.out.println(savedExam);
-        List<Question> mcqQuestions = questionRepository.findRandomQuestionsByDifficultyAndSectionType(
-                String.valueOf(exam.getDifficulty()), "MCQ", exam.getMcq()
-        );
-        System.out.println(mcqQuestions);
+            ExamDifficulty examDifficulty = ExamDifficulty.valueOf(exam.getDifficulty().toString());
 
-        List<Question> programmingQuestions = questionRepository.findRandomQuestionsByDifficultyAndSectionType(
-                String.valueOf(exam.getDifficulty()), "PROGRAMMING", exam.getProgramming()
-        );
-        System.out.println(programmingQuestions);
+            List<Question> mcqQuestions = allQuestions.stream()
+                    .filter(q -> q.getDifficulty() != null &&
+                            q.getDifficulty().equals(examDifficulty) &&
+                            q.getSection_type() == SectionType.MCQ)
+                    .collect(Collectors.toList());
 
-        List<Question> databaseQuestions = questionRepository.findRandomQuestionsByDifficultyAndSectionType(
-                String.valueOf(exam.getDifficulty()), "DATABASE", exam.getDb()
-        );
-        System.out.println(databaseQuestions);
+            List<Question> programmingQuestions = allQuestions.stream()
+                    .filter(q -> q.getDifficulty() != null &&
+                            q.getDifficulty().equals(examDifficulty) &&
+                            q.getSection_type() == SectionType.PROGRAMMING)
+                    .collect(Collectors.toList());
 
-        List<ExamQuestionMapping> mappings = new ArrayList<>();
-            System.out.println(mappings);
-        for (int i=0;i<exam.getMcq();i++){
-            ExamQuestionMapping mapping = new ExamQuestionMapping();
-            mapping.setExam(savedExam);
-            mapping.setQuestion(mcqQuestions.get(i));
-            mappings.add(mapping);
-        }
-            System.out.println(mappings);
-        for (Question question : programmingQuestions) {
-            ExamQuestionMapping mapping = new ExamQuestionMapping();
-            mapping.setExam(savedExam);
-            mapping.setQuestion(question);
-            mappings.add(mapping);
-        }
-            System.out.println(mappings);
-        for (Question question : databaseQuestions) {
-            ExamQuestionMapping mapping = new ExamQuestionMapping();
-            mapping.setExam(savedExam);
-            mapping.setQuestion(question);
-            mappings.add(mapping);
-        }
-            System.out.println(mappings);
-        examQuestionMappingRepository.saveAll(mappings);
-            System.out.println(mappings);
+            List<Question> databaseQuestions = allQuestions.stream()
+                    .filter(q -> q.getDifficulty() != null &&
+                            q.getDifficulty().equals(examDifficulty) &&
+                            q.getSection_type() == SectionType.DATABASE)
+                    .collect(Collectors.toList());
+
+            Collections.shuffle(mcqQuestions);
+            Collections.shuffle(programmingQuestions);
+            Collections.shuffle(databaseQuestions);
+
+            mcqQuestions = mcqQuestions.subList(0, Math.min(exam.getMcq(), mcqQuestions.size()));
+            programmingQuestions = programmingQuestions.subList(0, Math.min(exam.getProgramming(), programmingQuestions.size()));
+            databaseQuestions = databaseQuestions.subList(0, Math.min(exam.getDb(), databaseQuestions.size()));
+
+            List<ExamQuestionMapping> mappings = new ArrayList<>();
+
+            for (Question question : mcqQuestions) {
+                ExamQuestionMapping mapping = new ExamQuestionMapping();
+                mapping.setExam(savedExam);
+                mapping.setQuestion(question);
+                mappings.add(mapping);
+            }
+
+            for (Question question : programmingQuestions) {
+                ExamQuestionMapping mapping = new ExamQuestionMapping();
+                mapping.setExam(savedExam);
+                mapping.setQuestion(question);
+                mappings.add(mapping);
+            }
+
+            for (Question question : databaseQuestions) {
+                ExamQuestionMapping mapping = new ExamQuestionMapping();
+                mapping.setExam(savedExam);
+                mapping.setQuestion(question);
+                mappings.add(mapping);
+            }
+
+            examQuestionMappingRepository.saveAll(mappings);
+
+            return savedExam;
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
+            throw new RuntimeException("Failed to create exam", e);
         }
-        return exam;
     }
 
+//    public List<ExamQuestionMapping> generateQuestion(Exam exam){
+//
+//    }
+
+    public List<Question> getQuestionsByExam(int exam_id) {
+        return examQuestionMappingRepository.findByExam_Id(exam_id).stream()
+                .map(ExamQuestionMapping::getQuestion)
+                .collect(Collectors.toList());
+    }
+
+    public List<Question> updateDifficulty(int exam_id, String difficulty) {
+        Exam exam = examRepository.findById(exam_id)
+                .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
+        exam.setDifficulty(ExamDifficulty.valueOf(difficulty));
+        examRepository.save(exam);
+        return getQuestionsByExam(exam_id);
+    }
 
 }
