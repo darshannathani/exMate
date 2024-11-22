@@ -1,22 +1,22 @@
 import api from '../axios.config';
 
-export const examinerService = {
-    getExaminerById: async (id) => {
+export const adminService = {
+    getAdminById: async (id) => {
         const response = await api.get(`/admin/${id}`);
         return response.data;
     },
 
-    getAllExaminers: async () => {
+    getAllAdmins: async () => {
         const response = await api.get('/admin');
         return response.data;
     },
 
-    updateExaminer: async (id, examinerData) => {
-        const response = await api.put(`/admin/${id}`, examinerData);
+    updateAdmin: async (id, adminData) => {
+        const response = await api.put(`/admin/${id}`, adminData);
         return response.data;
     },
 
-    deleteExaminer: async (id) => {
+    deleteAdmin: async (id) => {
         const response = await api.delete(`/admin/${id}`);
         return response.data;
     },
@@ -31,4 +31,9 @@ export const examinerService = {
         });
         return response.data;
     },
+
+    registerAdmin: async (adminData) => {
+        const response = await api.post('/admin/register/admin', adminData);
+        return response.data;
+    }
 };

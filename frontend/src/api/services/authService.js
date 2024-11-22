@@ -6,8 +6,8 @@ export const authService = {
         return response.data;
     },
 
-    register: async (examinerData) => {
-        const response = await api.post('/auth/register/examiner', examinerData);
+    register: async (adminData) => {
+        const response = await api.post('/auth/register/admin', adminData);
         return response.data;
     },
 

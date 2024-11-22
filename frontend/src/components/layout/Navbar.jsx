@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../../api/services/authService';
-import { Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, Box } from '@mui/material';
+import { Brightness4, Brightness7, Menu as MenuIcon } from '@mui/icons-material';
 import image from '/logo.png';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [isOpen, setIsOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
     const { isAuthenticated, userRole, updateAuthState } = useAuth();
     const { isDarkMode, toggleTheme } = useTheme();
 
@@ -23,63 +24,110 @@ const Navbar = () => {
         }
     };
 
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
     const getNavLinks = () => {
         const commonLinks = [{ path: '/', label: 'Home' }];
-        const examinerLinks = [
+        const adminLinks = [
             { path: '/dashboard', label: 'Dashboard' },
-            { path: '/examiners', label: 'Examiners' },
+            { path: '/admins', label: 'Admins' },
             { path: '/upload', label: 'Upload Candidates' },
         ];
         const candidateLinks = [{ path: '/dashboard', label: 'Dashboard' }];
 
-        if (userRole === 'ROLE_EXAMINER') return [...commonLinks, ...examinerLinks];
+        if (userRole === 'ROLE_ADMIN') return [...commonLinks, ...adminLinks];
         if (userRole === 'ROLE_CANDIDATE') return [...commonLinks, ...candidateLinks];
 
         return commonLinks;
     };
 
     return (
-        <nav className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-800'} transition-colors duration-200`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                    <div className="flex items-center">
-                        <img src={image} alt="ExMate logo" className="h-8 w-8" />
-                        <Link to="/" className="flex-shrink-0">
-                            <h1 className="text-white text-xl font-bold">ExMate</h1>
-                        </Link>
-                    </div>
-                    <div className="hidden md:block">
-                        <div className="ml-10 flex items-baseline space-x-4">
-                            {getNavLinks().map((link) => (
-                                <Link
-                                    key={link.path}
-                                    to={link.path}
-                                    className={`${
-                                        location.pathname === link.path
-                                            ? 'bg-gray-900 text-white'
-                                            : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                                    } px-3 py-2 rounded-md text-sm font-medium`}
-                                >
-                                    {link.label}
-                                </Link>
-                            ))}
-                            <button
-                                onClick={isAuthenticated ? handleLogout : () => navigate('/login')}
-                                className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+        <AppBar position="static" color={isDarkMode ? 'default' : 'primary'}>
+            <Toolbar>
+                <Box display="flex" alignItems="center" flexGrow={1}>
+                    <img src={image} alt="ExMate logo" style={{ height: 32, marginRight: 16 }} />
+                    <Typography
+                        variant="h6"
+                        component={Link}
+                        to="/"
+                        sx={{ color: 'inherit', textDecoration: 'none', flexShrink: 0 }}
+                    >
+                        ExMate
+                    </Typography>
+                </Box>
+
+                <Box display={{ xs: 'none', md: 'flex' }} alignItems="center">
+                    {getNavLinks().map((link) => (
+                        <Button
+                            key={link.path}
+                            component={Link}
+                            to={link.path}
+                            color="inherit"
+                            sx={{
+                                backgroundColor: location.pathname === link.path ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                },
+                            }}
+                        >
+                            {link.label}
+                        </Button>
+                    ))}
+                    <Button
+                        color="inherit"
+                        onClick={isAuthenticated ? handleLogout : () => navigate('/login')}
+                    >
+                        {isAuthenticated ? 'Logout' : 'Login'}
+                    </Button>
+                    <IconButton color="inherit" onClick={toggleTheme}>
+                        {isDarkMode ? <Brightness7 /> : <Brightness4 />}
+                    </IconButton>
+                </Box>
+
+                <Box display={{ xs: 'flex', md: 'none' }}>
+                    <IconButton color="inherit" onClick={handleMenuOpen}>
+                        <MenuIcon />
+                    </IconButton>
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleMenuClose}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                    >
+                        {getNavLinks().map((link) => (
+                            <MenuItem
+                                key={link.path}
+                                component={Link}
+                                to={link.path}
+                                onClick={handleMenuClose}
+                                selected={location.pathname === link.path}
                             >
-                                {isAuthenticated ? 'Logout' : 'Login'}
-                            </button>
-                            <button
-                                onClick={toggleTheme}
-                                className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md"
-                            >
-                                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
+                                {link.label}
+                            </MenuItem>
+                        ))}
+                        <MenuItem onClick={isAuthenticated ? handleLogout : () => navigate('/login')}>
+                            {isAuthenticated ? 'Logout' : 'Login'}
+                        </MenuItem>
+                        <MenuItem onClick={toggleTheme}>
+                            {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                        </MenuItem>
+                    </Menu>
+                </Box>
+            </Toolbar>
+        </AppBar>
     );
 };
 
