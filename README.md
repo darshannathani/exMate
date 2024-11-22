@@ -1,6 +1,6 @@
 # Exmate: Online Examination System
 
-**Exmate** is a secure platform for online examinations. It connects examiners and candidates and ensures transparent assessments. It provides features for exam scheduling, candidate management, and question handling across multiple exam types.
+**Exmate** is a secure platform for online examinations. It connects admins and candidates and ensures transparent assessments. It provides features for exam scheduling, candidate management, and question handling across multiple exam types.
 
 ## Technology Stack
 

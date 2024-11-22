@@ -1,13 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { examinerService } from '../../api/services/examinerService';
-import { authService } from '../../api/services/authService';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../../api/services/authService';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import {
+    Container,
+    Typography,
+    CircularProgress,
+    Grid,
+    Box,
+    Card,
+    CardContent,
+} from '@mui/material';
+import {
+    People as PeopleIcon,
+    Description as DescriptionIcon,
+    Settings as SettingsIcon,
+    Assessment as AssessmentIcon,
+    Assignment as AssignmentIcon,
+    Person as PersonIcon,
+    MenuBook as MenuBookIcon,
+} from '@mui/icons-material';
 
-const DashboardComponent = () => {
-    const [examiners, setExaminers] = useState([]);
-    const [loading, setLoading] = useState(false);
+const Dashboard = () => {
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { updateAuthState, userRole } = useAuth();
     const navigate = useNavigate();
@@ -16,10 +32,10 @@ const DashboardComponent = () => {
     useEffect(() => {
         const checkAuthAndFetchData = async () => {
             try {
-                const token = document.cookie.split('; ')
-                    .find(row => row.startsWith('jwt='))
+                const token = document.cookie
+                    .split('; ')
+                    .find((row) => row.startsWith('jwt='))
                     ?.split('=')[1];
-
                 if (!token) {
                     updateAuthState(null);
                     navigate('/login');
@@ -28,10 +44,7 @@ const DashboardComponent = () => {
 
                 const role = await authService.getUserRole();
                 updateAuthState(role);
-
-                if (role === 'ROLE_EXAMINER') {
-                    fetchExaminers();
-                }
+                setLoading(false);
             } catch (error) {
                 console.error('Auth check failed:', error);
                 updateAuthState(null);
@@ -43,73 +56,129 @@ const DashboardComponent = () => {
         checkAuthAndFetchData();
     }, [navigate, updateAuthState]);
 
-    const fetchExaminers = async () => {
-        try {
-            const data = await examinerService.getAllExaminers();
-            setExaminers(data);
-        } catch (error) {
-            setError('Failed to fetch examiners');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (e_id) => {
-        if (window.confirm('Are you sure you want to delete this examiner?')) {
-            try {
-                await examinerService.deleteExaminer(e_id);
-                setExaminers(examiners.filter(examiner => examiner.e_id !== e_id));
-            } catch (error) {
-                setError('Failed to delete examiner');
+    const navigationCards = {
+        ROLE_ADMIN: [
+            {
+                title: 'Manage Admins',
+                description: 'Add, remove, or modify admin accounts',
+                icon: <PeopleIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+                path: '/admin/manage-admins'
+            },
+            {
+                title: 'Exam Management',
+                description: 'Create and manage examination papers',
+                icon: <DescriptionIcon sx={{ fontSize: 40, color: 'success.main' }} />,
+                path: '/admin/exam-management'
+            },
+            {
+                title: 'System Settings',
+                description: 'Configure system parameters and settings',
+                icon: <SettingsIcon sx={{ fontSize: 40, color: 'secondary.main' }} />,
+                path: '/admin/system-settings'
+            },
+            {
+                title: 'Results Overview',
+                description: 'View and analyze examination results',
+                icon: <AssessmentIcon sx={{ fontSize: 40, color: 'warning.main' }} />,
+                path: '/admin/results-overview'
+            },
+            {
+                title: 'Candidate Management',
+                description: 'Manage candidate accounts and data',
+                icon: <PeopleIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
+                path: '/admin/candidate-upload'
             }
-        }
+        ],
+        ROLE_CANDIDATE: [
+            {
+                title: 'Available Exams',
+                description: 'View and take available examinations',
+                icon: <AssignmentIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
+                path: '/candidate/available-exams'
+            },
+            {
+                title: 'My Results',
+                description: 'View your examination results and progress',
+                icon: <AssessmentIcon sx={{ fontSize: 40, color: 'success.main' }} />,
+                path: '/candidate/my-results'
+            },
+            {
+                title: 'Profile',
+                description: 'Update your personal information',
+                icon: <PersonIcon sx={{ fontSize: 40, color: 'secondary.main' }} />,
+                path: '/candidate/profile'
+            },
+            {
+                title: 'Study Materials',
+                description: 'Access study resources and guides',
+                icon: <MenuBookIcon sx={{ fontSize: 40, color: 'warning.main' }} />,
+                path: '/candidate/study-materials'
+            }
+        ]
     };
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <div className="text-xl">Loading...</div>
-            </div>
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+                <CircularProgress />
+            </Box>
         );
     }
 
     if (error) {
         return (
-            <div className="container mx-auto p-4">
-                <div className="text-red-500 text-center">{error}</div>
-            </div>
+            <Container maxWidth="sm" sx={{ mt: 4 }}>
+                <Typography color="error">{error}</Typography>
+            </Container>
         );
     }
 
     return (
-        <div className={`container mx-auto p-4 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
-            {userRole === 'ROLE_CANDIDATE' && (
-                <div>
-                    <h2 className="text-2xl font-bold mb-4">Candidate Dashboard</h2>
-                    <p className="text-lg">Welcome to your candidate dashboard. Here you can view your exams and results.</p>
-                </div>
-            )}
-            {userRole === 'ROLE_EXAMINER' && (
-                <div>
-                    <h2 className="text-2xl font-bold mb-4">Examiners Dashboard</h2>
-                    <div className="grid gap-4">
-                        {examiners.map(examiner => (
-                            <div key={examiner.e_id} className="p-4 border rounded shadow">
-                                <h3 className="font-bold">{examiner.name}</h3>
-                                <p>{examiner.email}</p>
-                                <button
-                                    onClick={() => handleDelete(examiner.e_id)}
-                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </div>
+        <Container maxWidth="lg">
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    {userRole === 'ROLE_ADMIN' ? 'Admin Dashboard' : 'Candidate Dashboard'}
+                </Typography>
+                <Typography variant="body1" color="text.secondary" gutterBottom>
+                    Welcome to your dashboard. Select a card to navigate to different sections.
+                </Typography>
+            </Box>
+
+            <Grid container spacing={3}>
+                {navigationCards[userRole]?.map((card, index) => (
+                    <Grid item xs={12} sm={6} md={3} key={index}>
+                        <Card
+                            sx={{
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                backgroundColor: isDarkMode ? 'grey.800' : 'background.paper',
+                                '&:hover': {
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: 6,
+                                }
+                            }}
+                            onClick={() => navigate(card.path)}
+                        >
+                            <CardContent>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+                                    {card.icon}
+                                </Box>
+                                <Typography variant="h6" component="h2" align="center" gutterBottom>
+                                    {card.title}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" align="center">
+                                    {card.description}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+        </Container>
     );
 };
 
-export default DashboardComponent;
+export default Dashboard;

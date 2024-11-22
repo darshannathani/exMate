@@ -153,12 +153,10 @@ public class ExamService {
         }
     }
 
-//    public List<ExamQuestionMapping> generateQuestion(Exam exam){
-//
-//    }
-
     public List<Question> getQuestionsByExam(int exam_id) {
-        return examQuestionMappingRepository.findByExam_Id(exam_id).stream()
+        Exam exam = examRepository.findById(exam_id)
+                .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
+        return examQuestionMappingRepository.findByExam(exam).stream()
                 .map(ExamQuestionMapping::getQuestion)
                 .collect(Collectors.toList());
     }
