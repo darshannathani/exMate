@@ -2,6 +2,7 @@ package com.exMate.backend.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-// Update JwtTokenProvider.java
 @Component
 public class JwtTokenProvider {
 
@@ -75,16 +75,8 @@ public class JwtTokenProvider {
                     .build()
                     .parseClaimsJws(authToken);
             return true;
-        } catch (SecurityException e) {
-            System.out.println("Invalid JWT signature: {}"+ e.getMessage());
-        } catch (MalformedJwtException e) {
-            System.out.println("Invalid JWT token: {}"+ e.getMessage());
-        } catch (ExpiredJwtException e) {
-            System.out.println("Expired JWT token: {}"+ e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            System.out.println("Unsupported JWT token: {}"+ e.getMessage());
-        } catch (IllegalArgumentException e) {
-            System.out.println("JWT claims string is empty: {}"+ e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Exception:" + e);
         }
         return false;
     }

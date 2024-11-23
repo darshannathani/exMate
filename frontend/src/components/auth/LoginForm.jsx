@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../api/services/authService';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -10,12 +10,16 @@ import {
     Box,
     Alert,
     Paper,
+    IconButton,
+    InputAdornment,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const LoginForm = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const { isDarkMode } = useTheme();
 
     const handleChange = (e) => {
@@ -28,8 +32,12 @@ const LoginForm = () => {
             await authService.login(formData.email, formData.password);
             navigate('/dashboard');
         } catch (error) {
-            setError('Login failed, Invalid email or password');
+            setError('Login failed, Invalid email or password',error);
         }
+    };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
     };
 
     return (
@@ -68,7 +76,7 @@ const LoginForm = () => {
                         <TextField
                             label="Password"
                             name="password"
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={formData.password}
                             onChange={handleChange}
                             fullWidth
@@ -79,6 +87,17 @@ const LoginForm = () => {
                                     backgroundColor: isDarkMode ? '#424242' : 'inherit',
                                     color: isDarkMode ? 'white' : 'inherit',
                                 },
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={togglePasswordVisibility}
+                                            edge="end"
+                                            aria-label="toggle password visibility"
+                                        >
+                                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
                             }}
                         />
                     </Box>

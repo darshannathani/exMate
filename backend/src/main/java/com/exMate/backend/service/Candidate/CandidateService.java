@@ -1,4 +1,4 @@
-package com.exMate.backend.service;
+package com.exMate.backend.service.Candidate;
 
 import com.exMate.backend.model.Candidate;
 import com.exMate.backend.repository.CandidateRepository;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -23,7 +24,8 @@ public class CandidateService {
     final private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public CandidateService(AdminRepository adminRepository) {
+    public CandidateService(CandidateRepository candidateRepository) {
+        this.candidateRepository = candidateRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -61,7 +63,10 @@ public class CandidateService {
         if (birthDateCell != null) {
             if (birthDateCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(birthDateCell)) {
                 Date date = birthDateCell.getDateCellValue();
-                candidate.setBirthDate(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+                LocalDate localDate = date.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+                candidate.setBirthdate(localDate);
             } else {
                 throw new RuntimeException("Invalid birth date format");
             }
@@ -80,5 +85,47 @@ public class CandidateService {
             case NUMERIC -> String.valueOf((long) cell.getNumericCellValue());
             default -> null;
         };
+    }
+
+    public void addCandidate(Candidate candidate) {
+        if (candidateRepository.findByEmail(candidate.getEmail()) != null) {
+            throw new RuntimeException("Error: Email is already in use!");
+        }
+        System.out.println(candidate.getBirthdate());
+        if (candidate.getBirthdate() != null) {
+            candidate.setBirthdate(candidate.getBirthdate());
+        }
+        candidate.setPassword(passwordEncoder.encode(candidate.getPhone()));
+        candidateRepository.save(candidate);
+    }
+
+    public Candidate updateCandidate(int c_id, Candidate candidate) {
+        Candidate existingCandidate = candidateRepository.findById(c_id)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        existingCandidate.setName(candidate.getName());
+        existingCandidate.setEmail(candidate.getEmail());
+        existingCandidate.setPhone(candidate.getPhone());
+        if (candidate.getBirthdate() != null) {
+            existingCandidate.setBirthdate(candidate.getBirthdate());
+        }
+        existingCandidate.setPassword(passwordEncoder.encode(candidate.getPhone()));
+        return candidateRepository.save(existingCandidate);
+    }
+
+    public Candidate getCandidateById(int c_id) {
+        return candidateRepository.findById(c_id)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+    }
+
+    public List<Candidate> getAllCandidates() {
+        return candidateRepository.findAll();
+    }
+
+    public void deleteCandidate(int c_id) {
+        if(!candidateRepository.existsById(c_id)) {
+            throw new RuntimeException("Candidate not found");
+        }
+        candidateRepository.deleteById(c_id);
     }
 }
