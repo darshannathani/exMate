@@ -37,8 +37,6 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String jwt = tokenProvider.generateToken(authentication);
-            System.out.println("Login - Generated JWT token length: " + jwt.length());
-
             ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwt)
                     .path("/")
                     .maxAge(24 * 60 * 60)

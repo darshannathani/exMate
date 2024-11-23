@@ -4,7 +4,7 @@ const ManageAdmins = lazy(() => import('../components/admin/ManageAdmins'));
 const ExamManagement = lazy(() => import('../components/admin/ExamManagement'));
 const SystemSettings = lazy(() => import('../components/admin/SystemSettings'));
 const ResultsOverview = lazy(() => import('../components/admin/ResultsOverview'));
-const CandidateUpload = lazy(() => import('../components/admin/CandidateUpload'));
+const CandidateManagement = lazy(() => import('../components/admin/CandidateManagement'));
 export const adminRoutes = [
     {
         path: '/admin/manage-admins',
@@ -23,7 +23,7 @@ export const adminRoutes = [
         element: <ResultsOverview />,
     },
     {
-        path: '/admin/candidate-upload',
-        element: <CandidateUpload />,
+        path: '/admin/candidate-management',
+        element: <CandidateManagement />,
     }
 ];

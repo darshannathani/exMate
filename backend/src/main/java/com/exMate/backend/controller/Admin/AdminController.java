@@ -2,7 +2,7 @@ package com.exMate.backend.controller.Admin;
 
 import com.exMate.backend.model.Candidate;
 import com.exMate.backend.model.Admin;
-import com.exMate.backend.service.CandidateService;
+import com.exMate.backend.service.Candidate.CandidateService;
 import com.exMate.backend.service.Admin.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -86,7 +86,7 @@ const Dashboard = () => {
                 title: 'Candidate Management',
                 description: 'Manage candidate accounts and data',
                 icon: <PeopleIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
-                path: '/admin/candidate-upload'
+                path: '/admin/candidate-management'
             }
         ],
         ROLE_CANDIDATE: [

@@ -1,0 +1,24 @@
+import api from '../axios.config';
+
+export const candidateService = {
+    getCandidateById: async (id) => {
+        const response = await api.get(`/candidate/${id}`);
+        return response.data;
+    },
+    getAllCandidates: async () => {
+        const response = await api.get('/candidate');
+        return response.data;
+    },
+    updateCandidate: async (id, candidateData) => {
+        const response = await api.put(`/candidate/${id}`, candidateData);
+        return response.data;
+    },
+    deleteCandidate: async (id) => {
+        const response = await api.delete(`/candidate/${id}`);
+        return response.data;
+    },
+    addCandidate: async (candidateData) => {
+        const response = await api.post('/candidate', candidateData);
+        return response.data;
+    }
+};

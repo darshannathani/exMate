@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../../api/services/authService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -36,8 +36,6 @@ const Navbar = () => {
         const commonLinks = [{ path: '/', label: 'Home' }];
         const adminLinks = [
             { path: '/dashboard', label: 'Dashboard' },
-            { path: '/admins', label: 'Admins' },
-            { path: '/upload', label: 'Upload Candidates' },
         ];
         const candidateLinks = [{ path: '/dashboard', label: 'Dashboard' }];
 
