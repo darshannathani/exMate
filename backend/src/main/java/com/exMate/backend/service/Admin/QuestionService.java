@@ -9,6 +9,8 @@ import com.exMate.backend.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class QuestionService {
 
@@ -57,7 +59,8 @@ public class QuestionService {
     }
 
     public Iterable<Question> getAllQuestions() {
-        return questionRepository.findAll();
+        List<Question> questions = questionRepository.findAll();
+        return questions;
     }
 
     public void deleteQuestion(int q_id) {

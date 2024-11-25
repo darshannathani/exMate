@@ -80,16 +80,16 @@ public class ExamController {
             return ResponseEntity.badRequest().body("Error: Invalid exam");
         }
     }
-//
-//    @PutMapping("/{exam_id}/questions")
-//    public ResponseEntity<?> regernateQuestions(@PathVariable int exam_id, @RequestBody String difficulty) {
-//        try{
-//            return ResponseEntity.ok(examService.regenerateQuestions(exam_id,difficulty));
-//        } catch(Exception e){
-//            return ResponseEntity.badRequest().body("Error: Invalid exam");
-//        }
-//    }
-//
+
+    @PutMapping("/{exam_id}/regenerate")
+    public ResponseEntity<?> regenerateQuestions(@PathVariable int exam_id) {
+        try{
+            return ResponseEntity.ok(examService.regenerateQuestions(exam_id));
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body("Error: Invalid exam "+e);
+        }
+    }
+
     @PutMapping("/{exam_id}/update-difficulty")
     public ResponseEntity<?> updateDifficulty(@PathVariable int exam_id, @RequestBody String difficulty) {
         try{
