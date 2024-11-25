@@ -53,14 +53,18 @@ public class ExamService {
         oldExam.setDescription((String) request.get("description"));
         oldExam.setPassing_score((Integer) request.get("passing_score"));
         oldExam.setStatus((String) request.get("status"));
-        oldExam.setMcq((int) request.get("mcq"));
-        oldExam.setProgramming((int) request.get("programming"));
-        oldExam.setDb((int) request.get("database"));
-        oldExam.setDifficulty(ExamDifficulty.valueOf((String) request.get("difficulty")));
         oldExam.setStart_date(LocalDateTime.parse((CharSequence) request.get("start_date")));
         oldExam.setEnd_date(LocalDateTime.parse((CharSequence) request.get("end_date")));
         if(oldExam.getEnd_date().isBefore(oldExam.getStart_date())) {
             throw new RuntimeException("End date cannot be before start date");
+        }
+
+        if(oldExam.getDifficulty()!=ExamDifficulty.valueOf((String) request.get("difficulty")) || oldExam.getMcq() != (int) request.get("mcq") || oldExam.getProgramming() != (int) request.get("programming") || oldExam.getDb() != (int) request.get("db")) {
+            regenerateQuestions(exam_id);
+            oldExam.setDifficulty(ExamDifficulty.valueOf((String) request.get("difficulty")));
+            oldExam.setMcq((int) request.get("mcq"));
+            oldExam.setProgramming((int) request.get("programming"));
+            oldExam.setDb((int) request.get(("db")));
         }
         return examRepository.save(oldExam);
     }
@@ -93,57 +97,7 @@ public class ExamService {
 
             List<Question> allQuestions = questionRepository.findAll();
 
-            ExamDifficulty examDifficulty = ExamDifficulty.valueOf(exam.getDifficulty().toString());
-
-            List<Question> mcqQuestions = allQuestions.stream()
-                    .filter(q -> q.getDifficulty() != null &&
-                            q.getDifficulty().equals(examDifficulty) &&
-                            q.getSection_type() == SectionType.MCQ)
-                    .collect(Collectors.toList());
-
-            List<Question> programmingQuestions = allQuestions.stream()
-                    .filter(q -> q.getDifficulty() != null &&
-                            q.getDifficulty().equals(examDifficulty) &&
-                            q.getSection_type() == SectionType.PROGRAMMING)
-                    .collect(Collectors.toList());
-
-            List<Question> databaseQuestions = allQuestions.stream()
-                    .filter(q -> q.getDifficulty() != null &&
-                            q.getDifficulty().equals(examDifficulty) &&
-                            q.getSection_type() == SectionType.DATABASE)
-                    .collect(Collectors.toList());
-
-            Collections.shuffle(mcqQuestions);
-            Collections.shuffle(programmingQuestions);
-            Collections.shuffle(databaseQuestions);
-
-            mcqQuestions = mcqQuestions.subList(0, Math.min(exam.getMcq(), mcqQuestions.size()));
-            programmingQuestions = programmingQuestions.subList(0, Math.min(exam.getProgramming(), programmingQuestions.size()));
-            databaseQuestions = databaseQuestions.subList(0, Math.min(exam.getDb(), databaseQuestions.size()));
-
-            List<ExamQuestionMapping> mappings = new ArrayList<>();
-
-            for (Question question : mcqQuestions) {
-                ExamQuestionMapping mapping = new ExamQuestionMapping();
-                mapping.setExam(savedExam);
-                mapping.setQuestion(question);
-                mappings.add(mapping);
-            }
-
-            for (Question question : programmingQuestions) {
-                ExamQuestionMapping mapping = new ExamQuestionMapping();
-                mapping.setExam(savedExam);
-                mapping.setQuestion(question);
-                mappings.add(mapping);
-            }
-
-            for (Question question : databaseQuestions) {
-                ExamQuestionMapping mapping = new ExamQuestionMapping();
-                mapping.setExam(savedExam);
-                mapping.setQuestion(question);
-                mappings.add(mapping);
-            }
-
+            List<ExamQuestionMapping> mappings = generateQuestion(savedExam, allQuestions);
             examQuestionMappingRepository.saveAll(mappings);
 
             return savedExam;
@@ -169,4 +123,85 @@ public class ExamService {
         return getQuestionsByExam(exam_id);
     }
 
+    private List<ExamQuestionMapping> generateQuestion(Exam exam, List<Question> allQuestions) {
+
+        ExamDifficulty examDifficulty = ExamDifficulty.valueOf(exam.getDifficulty().toString());
+
+        List<Question> mcqQuestions = allQuestions.stream()
+                .filter(q -> q.getDifficulty() != null &&
+                        q.getDifficulty().equals(examDifficulty) &&
+                        q.getSection_type() == SectionType.MCQ)
+                .collect(Collectors.toList());
+
+        List<Question> programmingQuestions = allQuestions.stream()
+                .filter(q -> q.getDifficulty() != null &&
+                        q.getDifficulty().equals(examDifficulty) &&
+                        q.getSection_type() == SectionType.PROGRAMMING)
+                .collect(Collectors.toList());
+
+        List<Question> databaseQuestions = allQuestions.stream()
+                .filter(q -> q.getDifficulty() != null &&
+                        q.getDifficulty().equals(examDifficulty) &&
+                        q.getSection_type() == SectionType.DATABASE)
+                .collect(Collectors.toList());
+
+        Collections.shuffle(mcqQuestions);
+        Collections.shuffle(programmingQuestions);
+        Collections.shuffle(databaseQuestions);
+
+        mcqQuestions = mcqQuestions.subList(0, Math.min(exam.getMcq(), mcqQuestions.size()));
+        programmingQuestions = programmingQuestions.subList(0, Math.min(exam.getProgramming(), programmingQuestions.size()));
+        databaseQuestions = databaseQuestions.subList(0, Math.min(exam.getDb(), databaseQuestions.size()));
+
+        List<ExamQuestionMapping> mappings = new ArrayList<>();
+
+        for (Question question : mcqQuestions) {
+            ExamQuestionMapping mapping = new ExamQuestionMapping();
+            mapping.setExam(exam);
+            mapping.setQuestion(question);
+            mappings.add(mapping);
+        }
+
+        for (Question question : programmingQuestions) {
+            ExamQuestionMapping mapping = new ExamQuestionMapping();
+            mapping.setExam(exam);
+            mapping.setQuestion(question);
+            mappings.add(mapping);
+        }
+
+        for (Question question : databaseQuestions) {
+            ExamQuestionMapping mapping = new ExamQuestionMapping();
+            mapping.setExam(exam);
+            mapping.setQuestion(question);
+            mappings.add(mapping);
+        }
+        return mappings;
+    }
+
+    public Exam regenerateQuestions(int exam_id) {
+        try {
+            System.out.println("Regenerating questions for exam: " + exam_id);
+            Exam exam = examRepository.findById(exam_id)
+                    .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
+            System.out.println("Exam found: " + exam);
+            List<ExamQuestionMapping> questions = examQuestionMappingRepository.findAll();
+            if(questions.isEmpty()) {
+                throw new RuntimeException("No questions found for exam");
+            }
+            System.out.println("Questions found: " + questions.size());
+            List<Question> allQuestions = questionRepository.findAll();
+            System.out.println(allQuestions);
+            List<ExamQuestionMapping> mappings = generateQuestion(exam, allQuestions);
+            System.out.println(mappings);
+
+            examQuestionMappingRepository.deleteAllByExam(exam);
+            System.out.println("Deleted old questions");
+            examQuestionMappingRepository.saveAll(mappings);
+
+            return exam;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Failed to regenerate questions", e);
+        }
+    }
 }
