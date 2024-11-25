@@ -10,11 +10,8 @@ import java.util.List;
 @Repository
 public interface ExamQuestionMappingRepository extends JpaRepository<ExamQuestionMapping, Integer> {
 
-<<<<<<< Updated upstream
-    List<ExamQuestionMapping> findByExam_Id(int exam_id);
-=======
+
     List<ExamQuestionMapping> findByExam(Exam exam);
 
     void deleteAllByExam (Exam exam);
->>>>>>> Stashed changes
 }
