@@ -11,6 +11,6 @@ import java.util.List;
 public interface ExamQuestionMappingRepository extends JpaRepository<ExamQuestionMapping, Integer> {
 
     List<ExamQuestionMapping> findByExam(Exam exam);
-
-    void deleteAllByExam (Exam exam);
+    void deleteAllByExam(Exam exam);
+    List<ExamQuestionMapping> findAllByExam(Exam exam);
 }

@@ -27,11 +27,11 @@ public class ExamController {
     }
 
     @PutMapping("/update/{exam_id}")
-    public ResponseEntity<?> updateExam(@PathVariable int exam_id, @RequestBody Map<String,Object> request) {
+    public ResponseEntity<?> updateExam(@PathVariable int exam_id, @RequestBody Exam exam) {
         try{
-            return ResponseEntity.ok(examService.updateExam(exam_id,request));
+            return ResponseEntity.ok(examService.updateExam(exam_id,exam));
         } catch(Exception e){
-            return ResponseEntity.badRequest().body("Error: Invalid exam");
+            return ResponseEntity.badRequest().body("Error: Invalid exam "+e);
         }
     }
 

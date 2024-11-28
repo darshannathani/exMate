@@ -46,27 +46,47 @@ public class ExamService {
         return examRepository.save(exam);
     }
 
-    public Exam updateExam(int exam_id, Map<String,Object> request) {
+    @Transactional
+    public Exam updateExam(int exam_id, Exam exam) {
         Exam oldExam = examRepository.findById(exam_id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
 
-        oldExam.setDescription((String) request.get("description"));
-        oldExam.setPassing_score((Integer) request.get("passing_score"));
-        oldExam.setStatus((String) request.get("status"));
-        oldExam.setStart_date(LocalDateTime.parse((CharSequence) request.get("start_date")));
-        oldExam.setEnd_date(LocalDateTime.parse((CharSequence) request.get("end_date")));
-        if(oldExam.getEnd_date().isBefore(oldExam.getStart_date())) {
-            throw new RuntimeException("End date cannot be before start date");
-        }
+        boolean needRegenerate = false;
 
-        if(oldExam.getDifficulty()!=ExamDifficulty.valueOf((String) request.get("difficulty")) || oldExam.getMcq() != (int) request.get("mcq") || oldExam.getProgramming() != (int) request.get("programming") || oldExam.getDb() != (int) request.get("db")) {
-            regenerateQuestions(exam_id);
-            oldExam.setDifficulty(ExamDifficulty.valueOf((String) request.get("difficulty")));
-            oldExam.setMcq((int) request.get("mcq"));
-            oldExam.setProgramming((int) request.get("programming"));
-            oldExam.setDb((int) request.get(("db")));
+        if (oldExam.getDifficulty() != exam.getDifficulty() ||
+                oldExam.getMcq() != exam.getMcq() ||
+                oldExam.getProgramming() != exam.getProgramming() ||
+                oldExam.getDb() != exam.getDb()) {
+            needRegenerate = true;
         }
-        return examRepository.save(oldExam);
+        oldExam.setDescription(exam.getDescription());
+        oldExam.setPassing_score(exam.getPassing_score());
+        oldExam.setStatus(exam.getStatus());
+        if (exam.getStart_date() != null) {
+            oldExam.setStart_date(exam.getStart_date());
+        }
+        if (exam.getEnd_date() != null) {
+            oldExam.setEnd_date(exam.getEnd_date());
+        }
+        if (oldExam.getStart_date() != null && oldExam.getEnd_date() != null) {
+            if (oldExam.getEnd_date().isBefore(oldExam.getStart_date())) {
+                throw new RuntimeException("End date cannot be before start date");
+            }
+        }
+        oldExam.setTotal_marks(exam.getTotal_marks());
+        oldExam.setDuration(exam.getDuration());
+        oldExam.setTitle(exam.getTitle());
+        if (exam.getDifficulty() != null) {
+            oldExam.setDifficulty(exam.getDifficulty());
+        }
+        oldExam.setMcq(exam.getMcq());
+        oldExam.setProgramming(exam.getProgramming());
+        oldExam.setDb(exam.getDb());
+        Exam updatedExam = examRepository.save(oldExam);
+        if (needRegenerate) {
+            regenerateQuestions(exam_id);
+        }
+        return updatedExam;
     }
 
     public List<Exam> getAllExam() {
@@ -79,8 +99,7 @@ public class ExamService {
 
     public void deleteExam(int exam_id) {
         try{
-            examRepository.findById(exam_id)
-                    .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
+            examRepository.deleteById(exam_id);
         } catch(Exception e) {
             throw new RuntimeException("Error: Invalid exam");
         }
@@ -91,15 +110,14 @@ public class ExamService {
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
     }
 
+    @Transactional
     public Exam createExam(Exam exam) {
         try {
             Exam savedExam = examRepository.save(exam);
-
             List<Question> allQuestions = questionRepository.findAll();
-
             List<ExamQuestionMapping> mappings = generateQuestion(savedExam, allQuestions);
+            examQuestionMappingRepository.deleteAllByExam(savedExam);
             examQuestionMappingRepository.saveAll(mappings);
-
             return savedExam;
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,29 +196,32 @@ public class ExamService {
         return mappings;
     }
 
+    @Transactional
     public Exam regenerateQuestions(int exam_id) {
         try {
-            System.out.println("Regenerating questions for exam: " + exam_id);
+            // Find the exam
             Exam exam = examRepository.findById(exam_id)
                     .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
-            System.out.println("Exam found: " + exam);
-            List<ExamQuestionMapping> questions = examQuestionMappingRepository.findAll();
-            if(questions.isEmpty()) {
-                throw new RuntimeException("No questions found for exam");
-            }
-            System.out.println("Questions found: " + questions.size());
-            List<Question> allQuestions = questionRepository.findAll();
-            System.out.println(allQuestions);
-            List<ExamQuestionMapping> mappings = generateQuestion(exam, allQuestions);
-            System.out.println(mappings);
 
-            examQuestionMappingRepository.deleteAllByExam(exam);
-            System.out.println("Deleted old questions");
-            examQuestionMappingRepository.saveAll(mappings);
+            // Get all available questions
+            List<Question> allQuestions = questionRepository.findAll();
+
+            // Delete existing exam-question mappings for this exam
+            List<ExamQuestionMapping> existingMappings =
+                    examQuestionMappingRepository.findAllByExam(exam);
+
+            if (!existingMappings.isEmpty()) {
+                examQuestionMappingRepository.deleteAll(existingMappings);
+            }
+
+            // Generate new question mappings
+            List<ExamQuestionMapping> newMappings = generateQuestion(exam, allQuestions);
+
+            // Save new mappings
+            examQuestionMappingRepository.saveAll(newMappings);
 
             return exam;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to regenerate questions", e);
         }
     }

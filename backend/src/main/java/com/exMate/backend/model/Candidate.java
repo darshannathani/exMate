@@ -38,7 +38,7 @@ public class Candidate {
         private String phone;
 
         @Column(name = "birthdate")
-        @JsonFormat(pattern = "yyyy-MM-dd")  // This helps with JSON serialization/deserialization
+        @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate birthdate;
 
         @NotBlank
