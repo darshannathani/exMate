@@ -96,12 +96,6 @@ const Dashboard = () => {
                 icons: <QuestionMarkIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
                 path: '/admin/question-management'
             },
-            {
-                title: 'Exam Management',
-                description: 'Create and manage examination papers',
-                icons: <PeopleIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
-                path: '/admin/exam-management'
-            }
         ],
         ROLE_CANDIDATE: [
             {

@@ -9,20 +9,22 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Menu,
+    Tooltip,
+    IconButton,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    TextField,
-    IconButton,
-    Tooltip,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    Menu,
+    Tabs,
+    Tab,
 } from '@mui/material';
 import { 
     Edit as EditIcon, 
@@ -30,35 +32,47 @@ import {
     Search as SearchIcon,
     FilterList as FilterListIcon,
     Sort as SortIcon,
+    Visibility as VisibilityIcon
 } from '@mui/icons-material';
 import { examService } from '../../api/services/examService';
-
 const ExamManagement = () => {
     const [exams, setExams] = useState([]);
     const [filteredExams, setFilteredExams] = useState([]);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedExam, setSelectedExam] = useState(null);
-
     const [searchTerm, setSearchTerm] = useState('');
-
     const [anchorElFilter, setAnchorElFilter] = useState(null);
     const [anchorElSort, setAnchorElSort] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState({
         difficulty: '',
         status: ''
     });
+    const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+    const [examQuestions, setExamQuestions] = useState([]);
+    const [tabValue, setTabValue] = useState(0);
     const [sortCriteria, setSortCriteria] = useState({
         field: 'title',
         direction: 'asc'
     });
-
+    const handleViewExamDetails = async (exam) => {
+        setSelectedExam(exam);
+        
+        try {
+            const questions = await examService.getQuestionsByExam(exam.exam_id);
+            setExamQuestions(questions);
+            setDetailsDialogOpen(true);
+        } catch (error) {
+            console.error('Failed to fetch exam questions', error);
+            alert('Failed to fetch exam questions.');
+        }
+    };
     const [newExam, setNewExam] = useState({
         title: '',
         description: '',
         passing_score: 0,
         status: 'ACTIVE',
-        difficulty: 'EASY',
+        difficulty: 'Easy',
         mcq: 0,
         programming: 0,
         db: 0,
@@ -121,7 +135,7 @@ const ExamManagement = () => {
                 start_date: newExam.start_date ? new Date(newExam.start_date).toISOString() : null,
                 end_date: newExam.end_date ? new Date(newExam.end_date).toISOString() : null
             };
-
+            console.log(examData);
             await examService.createExam(examData);
             alert('Exam created successfully!');
     
@@ -130,7 +144,7 @@ const ExamManagement = () => {
                 description: '',
                 passing_score: 0,
                 status: 'ACTIVE',
-                difficulty: 'EASY',
+                difficulty: 'Easy',
                 mcq: 0,
                 programming: 0,
                 db: 0,
@@ -185,6 +199,16 @@ const ExamManagement = () => {
                 console.error('Error deleting exam:', error);
                 alert('Failed to delete exam.');
             }
+        }
+    };
+    const handleRegenerateQuestions = async () => {
+        try {
+            const regeneratedQuestions = await examService.regenerateQuestions(selectedExam.exam_id);
+            setExamQuestions(regeneratedQuestions);
+            alert('Questions regenerated successfully!');
+        } catch (error) {
+            console.error('Failed to regenerate questions', error);
+            alert('Failed to regenerate questions.');
         }
     };
     return (
@@ -251,9 +275,9 @@ const ExamManagement = () => {
                                 }))}
                             >
                                 <MenuItem value="">All</MenuItem>
-                                <MenuItem value="EASY">Easy</MenuItem>
-                                <MenuItem value="MEDIUM">Medium</MenuItem>
-                                <MenuItem value="HARD">Hard</MenuItem>
+                                <MenuItem value="Easy">Easy</MenuItem>
+                                <MenuItem value="Medium">Medium</MenuItem>
+                                <MenuItem value="Hard">Hard</MenuItem>
                             </Select>
                         </FormControl>
                     </MenuItem>
@@ -345,6 +369,14 @@ const ExamManagement = () => {
                                 <TableCell>{exam.Total_marks}</TableCell>
                                 <TableCell>{exam.status}</TableCell>
                                 <TableCell>
+                                    <Tooltip title="View Details">
+                                        <IconButton
+                                            onClick={() => handleViewExamDetails(exam)}
+                                            sx={{ color: '#1976d2' }}
+                                        >
+                                            <VisibilityIcon />
+                                        </IconButton>
+                                    </Tooltip>
                                     <Tooltip title="Edit">
                                         <IconButton
                                             onClick={() => handleEditExam(exam)}
@@ -418,9 +450,9 @@ const ExamManagement = () => {
                                 label="Difficulty"
                                 onChange={(e) => setNewExam(prev => ({ ...prev, difficulty: e.target.value }))}
                             >
-                                <MenuItem value="EASY">Easy</MenuItem>
-                                <MenuItem value="MEDIUM">Medium</MenuItem>
-                                <MenuItem value="HARD">Hard</MenuItem>
+                                <MenuItem value="Easy">Easy</MenuItem>
+                                <MenuItem value="Medium">Medium</MenuItem>
+                                <MenuItem value="Hard">Hard</MenuItem>
                             </Select>
                         </FormControl>
                         <TextField
@@ -498,6 +530,76 @@ const ExamManagement = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <Dialog 
+                    open={detailsDialogOpen} 
+                    onClose={() => setDetailsDialogOpen(false)} 
+                    fullWidth 
+                    maxWidth="lg"
+                >
+                <DialogTitle>Exam Details</DialogTitle>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs 
+                        value={tabValue} 
+                        onChange={(e, newValue) => setTabValue(newValue)}
+                    >
+                        <Tab label="Exam Details" />
+                        <Tab label="Questions" />
+                    </Tabs>
+                </Box>
+                <DialogContent>
+                    {tabValue === 0 && selectedExam && (
+                        <Box>
+                            <Typography variant="h6">Exam Information</Typography>
+                            <Typography>Title: {selectedExam.title}</Typography>
+                            <Typography>Description: {selectedExam.description}</Typography>
+                            <Typography>Difficulty: {selectedExam.difficulty}</Typography>
+                            <Typography>Status: {selectedExam.status}</Typography>
+                            <Typography>Passing Score: {selectedExam.passing_score}</Typography>
+                            <Typography>Total Marks: {selectedExam.Total_marks}</Typography>
+                            <Typography>Duration: {selectedExam.duration} minutes</Typography>
+                            <Typography>Start Date: {selectedExam.start_date}</Typography>
+                            <Typography>End Date: {selectedExam.end_date}</Typography>
+                            </Box>
+                            )}
+            {tabValue === 1 && (
+                            <Box>
+                                <Button 
+                                    variant="contained" 
+                                    color="primary" 
+                                    onClick={handleRegenerateQuestions}
+                                    sx={{ mb: 2 }}
+                                >
+                                    Regenerate Questions
+                                </Button>
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Question ID</TableCell>
+                                                <TableCell>Type</TableCell>
+                                                <TableCell>Marks</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {examQuestions.map((question) => (
+                                                <TableRow key={question.question_id}>
+                                                    <TableCell>{question.question_id}</TableCell>
+                                                    <TableCell>{question.type}</TableCell>
+                                                    <TableCell>{question.marks}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </Box>
+                        )}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setDetailsDialogOpen(false)} color="secondary">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} fullWidth maxWidth="md">
                 <DialogTitle>Edit Exam</DialogTitle>
                 <DialogContent>
@@ -549,9 +651,9 @@ const ExamManagement = () => {
                                         label="Difficulty"
                                         onChange={(e) => setSelectedExam(prev => ({ ...prev, difficulty: e.target.value }))}
                                     >
-                                        <MenuItem value="EASY">Easy</MenuItem>
-                                        <MenuItem value="MEDIUM">Medium</MenuItem>
-                                        <MenuItem value="HARD">Hard</MenuItem>
+                                        <MenuItem value="Easy">Easy</MenuItem>
+                                        <MenuItem value="Medium">Medium</MenuItem>
+                                        <MenuItem value="Hard">Hard</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <TextField
