@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import { useState, useEffect } from 'react';
 import {
     Container,
@@ -42,10 +40,8 @@ const ExamManagement = () => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedExam, setSelectedExam] = useState(null);
 
-    // Search state
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Filter and Sort states
     const [anchorElFilter, setAnchorElFilter] = useState(null);
     const [anchorElSort, setAnchorElSort] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState({
@@ -57,7 +53,6 @@ const ExamManagement = () => {
         direction: 'asc'
     });
 
-    // New exam state to match Exam model
     const [newExam, setNewExam] = useState({
         title: '',
         description: '',
@@ -88,32 +83,27 @@ const ExamManagement = () => {
         fetchExams();
     }, []);
 
-    // Search and Filter Logic
     useEffect(() => {
         let result = exams;
 
-        // Search Filter
         if (searchTerm) {
             result = result.filter(exam => 
                 exam.title.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
-        // Difficulty Filter
         if (filterCriteria.difficulty) {
             result = result.filter(exam => 
                 exam.difficulty === filterCriteria.difficulty
             );
         }
 
-        // Status Filter
         if (filterCriteria.status) {
             result = result.filter(exam => 
                 exam.status === filterCriteria.status
             );
         }
 
-        // Sorting
         result.sort((a, b) => {
             const field = sortCriteria.field;
             if (a[field] < b[field]) return sortCriteria.direction === 'asc' ? -1 : 1;
@@ -126,7 +116,6 @@ const ExamManagement = () => {
 
     const handleAddExam = async () => {
         try {
-            // Convert dates to LocalDateTime format if needed
             const examData = {
                 ...newExam,
                 start_date: newExam.start_date ? new Date(newExam.start_date).toISOString() : null,
@@ -136,7 +125,6 @@ const ExamManagement = () => {
             await examService.createExam(examData);
             alert('Exam created successfully!');
     
-            // Reset form and close dialog
             setNewExam({
                 title: '',
                 description: '',
@@ -153,7 +141,6 @@ const ExamManagement = () => {
             });
             setDialogOpen(false);
     
-            // Refresh exam list
             await fetchExams();
         } catch (error) {
             console.error('Error adding exam:', error);
@@ -168,7 +155,6 @@ const ExamManagement = () => {
 
     const handleUpdateExam = async () => {
         try {
-            // Convert dates to LocalDateTime format if needed
             const examData = {
                 ...selectedExam,
                 start_date: selectedExam.start_date ? new Date(selectedExam.start_date).toISOString() : null,
@@ -181,7 +167,7 @@ const ExamManagement = () => {
             setEditDialogOpen(false);
             setSelectedExam(null);
     
-            // Refresh exam list
+
             await fetchExams();
         } catch (error) {
             console.error('Error updating exam:', error);
@@ -650,4 +636,3 @@ const ExamManagement = () => {
 };
 
 export default ExamManagement;
->>>>>>> Stashed changes
