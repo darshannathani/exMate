@@ -39,5 +39,10 @@ export const examService = {
     updateExamDifficulty: async (examId, difficulty) => {
         const response = await api.put(`/admin/exam/${examId}/update-difficulty`, difficulty);
         return response.data;
+    },
+
+    regenerateQuestions: async (examId) => {
+        const response = await api.put(`/admin/exam/${examId}/regenerate`);
+        return response.data;
     }
 };
