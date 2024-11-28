@@ -20,6 +20,8 @@ import {
     Assignment as AssignmentIcon,
     Person as PersonIcon,
     MenuBook as MenuBookIcon,
+    QuestionMark as QuestionMarkIcon,
+    Person2 as examIcon,
 } from '@mui/icons-material';
 
 const Dashboard = () => {
@@ -87,6 +89,18 @@ const Dashboard = () => {
                 description: 'Manage candidate accounts and data',
                 icon: <PeopleIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
                 path: '/admin/candidate-management'
+            },
+            {
+                title: 'Question Management',
+                description: 'Manage question bank and exam questions',
+                icons: <QuestionMarkIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
+                path: '/admin/question-management'
+            },
+            {
+                title: 'Exam Management',
+                description: 'Create and manage examination papers',
+                icons: <PeopleIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
+                path: '/admin/exam-management'
             }
         ],
         ROLE_CANDIDATE: [
