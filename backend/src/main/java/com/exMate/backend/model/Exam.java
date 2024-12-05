@@ -10,6 +10,7 @@ import java.util.List;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "Exam")
@@ -34,22 +35,19 @@ public class Exam {
     private ExamDifficulty difficulty;
 
     private int mcq;
-
     private int programming;
-
     private int db;
 
-    @NotBlank
     private int Total_marks;
 
     @NotNull
     private int duration;
 
     private LocalDateTime start_date;
-
     private LocalDateTime end_date;
 
     @JsonBackReference
+    @ToString.Exclude
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExamQuestionMapping> exam;
 }
