@@ -1,29 +1,34 @@
 package com.exMate.backend.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Exam_question_mapping")
-public class ExamQuestionMapping {
+@Table(name = "Exam_Result")
+public class ExamResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer map_id;
+    private int result_id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ex_id")
-    @ToString.Exclude
+    @JoinColumn(name = "candidate_id")
+    private Candidate candidate;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "exam_id")
     private Exam exam;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ques_id")
-    private Question question;
-}
+    private int score;
 
+    private String status;
+
+    private LocalDateTime date_completed;
+
+}

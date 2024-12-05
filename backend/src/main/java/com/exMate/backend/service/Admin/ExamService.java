@@ -199,27 +199,16 @@ public class ExamService {
     @Transactional
     public Exam regenerateQuestions(int exam_id) {
         try {
-            // Find the exam
             Exam exam = examRepository.findById(exam_id)
                     .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
-
-            // Get all available questions
             List<Question> allQuestions = questionRepository.findAll();
-
-            // Delete existing exam-question mappings for this exam
             List<ExamQuestionMapping> existingMappings =
                     examQuestionMappingRepository.findAllByExam(exam);
-
             if (!existingMappings.isEmpty()) {
                 examQuestionMappingRepository.deleteAll(existingMappings);
             }
-
-            // Generate new question mappings
             List<ExamQuestionMapping> newMappings = generateQuestion(exam, allQuestions);
-
-            // Save new mappings
             examQuestionMappingRepository.saveAll(newMappings);
-
             return exam;
         } catch (Exception e) {
             throw new RuntimeException("Failed to regenerate questions", e);
