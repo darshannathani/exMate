@@ -50,4 +50,9 @@ public class Exam {
     @ToString.Exclude
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExamQuestionMapping> exam;
+
+    @JsonBackReference
+    @ToString.Exclude
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ExamLog> examLog;
 }
