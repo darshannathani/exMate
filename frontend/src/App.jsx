@@ -1,4 +1,5 @@
-import React, { Suspense, lazy } from 'react';
+import PropTypes from 'prop-types';
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -18,7 +19,11 @@ const Layout = ({ children }) => {
     );
 };
 
-const ProtectedRoute = ({ element, requiredRole }) => {
+Layout.propTypes = {
+    children: PropTypes.node.isRequired,
+};
+
+const ProtectedRoute = ({ element: Element, requiredRole }) => {
     const { isAuthenticated, userRole } = useAuth();
 
     if (!isAuthenticated) {
@@ -29,7 +34,12 @@ const ProtectedRoute = ({ element, requiredRole }) => {
         return <Navigate to="/" replace />;
     }
 
-    return element;
+    return <Element />;
+};
+
+ProtectedRoute.propTypes = {
+    element: PropTypes.elementType.isRequired, // A React component
+    requiredRole: PropTypes.string, // Optional string
 };
 
 function App() {
@@ -40,37 +50,37 @@ function App() {
                     <Layout>
                         <Suspense fallback={<div>Loading...</div>}>
                             <Routes>
-                                {publicRoutes.map(route => (
-                                    <Route 
-                                        key={route.path} 
-                                        path={route.path} 
-                                        element={route.element} 
+                                {publicRoutes.map((route) => (
+                                    <Route
+                                        key={route.path}
+                                        path={route.path}
+                                        element={route.element}
                                     />
                                 ))}
 
-                                {adminRoutes.map(route => (
-                                    <Route 
-                                        key={route.path} 
-                                        path={route.path} 
+                                {adminRoutes.map((route) => (
+                                    <Route
+                                        key={route.path}
+                                        path={route.path}
                                         element={
-                                            <ProtectedRoute 
-                                                element={route.element} 
-                                                requiredRole="ROLE_ADMIN" 
+                                            <ProtectedRoute
+                                                element={route.element}
+                                                requiredRole="ROLE_ADMIN"
                                             />
-                                        } 
+                                        }
                                     />
                                 ))}
 
-                                {candidateRoutes.map(route => (
-                                    <Route 
-                                        key={route.path} 
-                                        path={route.path} 
+                                {candidateRoutes.map((route) => (
+                                    <Route
+                                        key={route.path}
+                                        path={route.path}
                                         element={
-                                            <ProtectedRoute 
-                                                element={route.element} 
-                                                requiredRole="ROLE_CANDIDATE" 
+                                            <ProtectedRoute
+                                                element={route.element}
+                                                requiredRole="ROLE_CANDIDATE"
                                             />
-                                        } 
+                                        }
                                     />
                                 ))}
 

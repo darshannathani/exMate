@@ -20,5 +20,15 @@ export const candidateService = {
     addCandidate: async (candidateData) => {
         const response = await api.post('/candidate', candidateData);
         return response.data;
-    }
+    },
+
+    getAvailableExams: async () => {
+        const response = await api.get(`/candidate/exam`);
+        return response.data;
+    },
+
+    startExam: async (examId) => {
+        const response = await api.post(`/candidate/exam/${examId}/start`);
+        return response.data;
+    },
 };
