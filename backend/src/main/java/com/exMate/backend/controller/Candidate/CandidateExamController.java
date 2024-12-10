@@ -3,6 +3,7 @@ package com.exMate.backend.controller.Candidate;
 import com.exMate.backend.model.Candidate;
 import com.exMate.backend.service.Admin.ExamService;
 import com.exMate.backend.service.Candidate.CandidateExamService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import com.exMate.backend.model.Response;
@@ -19,9 +20,8 @@ public class CandidateExamController {
     private CandidateExamService candidateExamService;
 
     @GetMapping
-    public ResponseEntity<?> getExam(){
+    public ResponseEntity<?> getAllExam(){
         try {
-            System.out.println("Getting candidate exam");
             return new ResponseEntity<>(candidateExamService.getCandidateExam(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -31,7 +31,6 @@ public class CandidateExamController {
     @GetMapping("{exam_id}")
     public ResponseEntity<?> getExamById(@PathVariable int exam_id){
         try {
-            System.out.println("Getting candidate exam by id");
             return new ResponseEntity<>(candidateExamService.getCandidateExamById(exam_id), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -39,10 +38,9 @@ public class CandidateExamController {
     }
 
     @PostMapping("{exam_id}/start")
-    public ResponseEntity<?> startExam(@PathVariable int exam_id){
+    public ResponseEntity<?> startExam(@PathVariable int exam_id, HttpServletRequest request){
         try {
-            System.out.println("Starting candidate exam");
-            return new ResponseEntity<>(candidateExamService.startExam(exam_id), HttpStatus.OK);
+            return new ResponseEntity<>(candidateExamService.startExam(exam_id, request), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

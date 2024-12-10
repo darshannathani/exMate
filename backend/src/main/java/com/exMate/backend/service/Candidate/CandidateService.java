@@ -2,7 +2,8 @@ package com.exMate.backend.service.Candidate;
 
 import com.exMate.backend.model.Candidate;
 import com.exMate.backend.repository.CandidateRepository;
-import com.exMate.backend.repository.AdminRepository;
+import com.exMate.backend.security.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,11 +23,13 @@ public class CandidateService {
     private CandidateRepository candidateRepository;
 
     final private PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public CandidateService(CandidateRepository candidateRepository) {
+    public CandidateService(CandidateRepository candidateRepository, JwtTokenProvider jwtTokenProvider) {
         this.candidateRepository = candidateRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     public List<Candidate> processExcelFile(MultipartFile file) throws IOException {
@@ -91,7 +94,6 @@ public class CandidateService {
         if (candidateRepository.findByEmail(candidate.getEmail()) != null) {
             throw new RuntimeException("Error: Email is already in use!");
         }
-        System.out.println(candidate.getBirthdate());
         if (candidate.getBirthdate() != null) {
             candidate.setBirthdate(candidate.getBirthdate());
         }
@@ -127,5 +129,9 @@ public class CandidateService {
             throw new RuntimeException("Candidate not found");
         }
         candidateRepository.deleteById(c_id);
+    }
+
+    public Optional<Candidate> getCurrentCandidate(HttpServletRequest request) {
+        return candidateRepository.findById(Integer.parseInt(jwtTokenProvider.getUserIdFromJWT(jwtTokenProvider.getJwtFromCookies(request))));
     }
 }
