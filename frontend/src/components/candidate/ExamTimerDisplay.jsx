@@ -3,8 +3,7 @@ import { Box, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 
 const ExamTimerDisplay = ({ totalTime, onTimeUp }) => {
-    const [remainingTime, setRemainingTime] = useState(totalTime * 60); // Convert minutes to seconds
-
+    const [remainingTime, setRemainingTime] = useState(totalTime * 60);
     useEffect(() => {
         const timer = setInterval(() => {
             setRemainingTime(prev => {
@@ -16,10 +15,8 @@ const ExamTimerDisplay = ({ totalTime, onTimeUp }) => {
                 return prev - 1;
             });
         }, 1000);
-
         return () => clearInterval(timer);
     }, [onTimeUp, totalTime]);
-
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
