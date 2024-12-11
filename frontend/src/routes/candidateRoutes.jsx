@@ -5,7 +5,7 @@ const MyResults = lazy(() => import('../components/candidate/MyResults'));
 const Profile = lazy(() => import('../components/candidate/Profile'));
 const StudyMaterials = lazy(() => import('../components/candidate/StudyMaterials'));
 const ExamPage = lazy(() => import('../components/candidate/ExamPage'));
-// const ExamResultPage = lazy(() => import('../components/candidate/ExamResultPage'));
+const ExamResultPage = lazy(() => import('../components/candidate/ExamResultPage'));
 
 export const candidateRoutes = [
     {
@@ -16,10 +16,10 @@ export const candidateRoutes = [
         path: '/candidate/exam/:examId',
         element: <ExamPage />,
     },
-    // {
-    //     path: '/candidate/exam-result',
-    //     element: <ExamResultPage />,
-    // },
+    {
+        path: '/candidate/exam-result',
+        element: <ExamResultPage />,
+    },
     {
         path: '/candidate/my-results',
         element: <MyResults />,

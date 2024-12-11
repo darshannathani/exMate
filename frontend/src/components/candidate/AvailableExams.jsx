@@ -25,7 +25,7 @@ import StarIcon from '@mui/icons-material/Star';
 import { candidateService } from '../../api/services/candidateService';
 
 const AvailableExamCards = () => {
-    const navigate = useNavigate(); // Add navigation hook
+    const navigate = useNavigate();
     const [exams, setExams] = useState([]);
     const [filteredExams, setFilteredExams] = useState([]);
     const [isLoading, setIsLoading] = useState(true);

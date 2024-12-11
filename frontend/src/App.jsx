@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Suspense } from 'react';
+import { Suspense} from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -10,7 +10,6 @@ import { publicRoutes } from './routes/publicRoutes';
 
 const Layout = ({ children }) => {
     const { isDarkMode } = useTheme();
-
     return (
         <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
             <Navbar />
@@ -18,30 +17,23 @@ const Layout = ({ children }) => {
         </div>
     );
 };
-
 Layout.propTypes = {
-    children: PropTypes.node.isRequired,
+    children: PropTypes.node
 };
-
-const ProtectedRoute = ({ element: Element, requiredRole }) => {
+const ProtectedRoute = ({ element, requiredRole }) => {
     const { isAuthenticated, userRole } = useAuth();
-
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
-
     if (requiredRole && userRole !== requiredRole) {
         return <Navigate to="/" replace />;
     }
-
-    return <Element />;
+    return element;
 };
-
 ProtectedRoute.propTypes = {
-    element: PropTypes.elementType.isRequired, // A React component
-    requiredRole: PropTypes.string, // Optional string
+    element: PropTypes.element.isRequired,
+    requiredRole: PropTypes.oneOf(['ROLE_ADMIN', 'ROLE_CANDIDATE'])
 };
-
 function App() {
     return (
         <ThemeProvider>
@@ -50,40 +42,37 @@ function App() {
                     <Layout>
                         <Suspense fallback={<div>Loading...</div>}>
                             <Routes>
-                                {publicRoutes.map((route) => (
-                                    <Route
-                                        key={route.path}
-                                        path={route.path}
-                                        element={route.element}
+                                {publicRoutes.map(route => (
+                                    <Route 
+                                        key={route.path} 
+                                        path={route.path} 
+                                        element={route.element} 
                                     />
                                 ))}
-
-                                {adminRoutes.map((route) => (
-                                    <Route
-                                        key={route.path}
-                                        path={route.path}
+                                {adminRoutes.map(route => (
+                                    <Route 
+                                        key={route.path} 
+                                        path={route.path} 
                                         element={
-                                            <ProtectedRoute
-                                                element={route.element}
-                                                requiredRole="ROLE_ADMIN"
+                                            <ProtectedRoute 
+                                                element={route.element} 
+                                                requiredRole="ROLE_ADMIN" 
                                             />
-                                        }
+                                        } 
                                     />
                                 ))}
-
-                                {candidateRoutes.map((route) => (
-                                    <Route
-                                        key={route.path}
-                                        path={route.path}
+                                {candidateRoutes.map(route => (
+                                    <Route 
+                                        key={route.path} 
+                                        path={route.path} 
                                         element={
-                                            <ProtectedRoute
-                                                element={route.element}
-                                                requiredRole="ROLE_CANDIDATE"
+                                            <ProtectedRoute 
+                                                element={route.element} 
+                                                requiredRole="ROLE_CANDIDATE" 
                                             />
-                                        }
+                                        } 
                                     />
                                 ))}
-
                                 <Route path="*" element={<div>404 - Page Not Found</div>} />
                             </Routes>
                         </Suspense>
