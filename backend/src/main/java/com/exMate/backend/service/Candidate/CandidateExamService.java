@@ -1,8 +1,10 @@
 package com.exMate.backend.service.Candidate;
 
+import com.exMate.backend.DTO.ExamDetails;
+import com.exMate.backend.DTO.ExamResponse;
+import com.exMate.backend.DTO.QuestionResponse;
 import com.exMate.backend.model.*;
 import com.exMate.backend.repository.*;
-import com.exMate.backend.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,8 +25,10 @@ public class CandidateExamService {
     private final ExamLogRepository examLogRepository;
     private final CandidateRepository candidateRepository;
     private final CandidateService candidateService;
+    private final MCQOptionRepository MCQOptionRepository;
+
     @Autowired
-    public CandidateExamService(ExamRepository examRepository, ExamQuestionMappingRepository examQuestionMappingRepository, QuestionRepository questionRepository, ResponseRepository responseRepository, ExamLogRepository examLogRepository, CandidateRepository candidateRepository, CandidateService candidateService) {
+    public CandidateExamService(ExamRepository examRepository, ExamQuestionMappingRepository examQuestionMappingRepository, QuestionRepository questionRepository, ResponseRepository responseRepository, ExamLogRepository examLogRepository, CandidateRepository candidateRepository, CandidateService candidateService, MCQOptionRepository MCQOptionRepository) {
         this.examRepository = examRepository;
         this.examQuestionMappingRepository = examQuestionMappingRepository;
         this.questionRepository = questionRepository;
@@ -32,6 +36,7 @@ public class CandidateExamService {
         this.examLogRepository = examLogRepository;
         this.candidateRepository = candidateRepository;
         this.candidateService = candidateService;
+        this.MCQOptionRepository = MCQOptionRepository;
     }
 
     public List<Exam> getCandidateExam() {
@@ -48,24 +53,35 @@ public class CandidateExamService {
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
     }
 
-    public List<Question> startExam(int exam_id, HttpServletRequest request) {
+    public ExamResponse startExam(int exam_id, HttpServletRequest request) {
         Exam exam = examRepository.findById(exam_id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
-        if(exam.getEnd_date().isBefore(exam.getStart_date())) {
+        if (exam.getEnd_date().isBefore(exam.getStart_date())) {
             throw new RuntimeException("End date cannot be before start date");
         }
         List<ExamQuestionMapping> mappings = examQuestionMappingRepository.findAllByExam(exam);
-        List<Question> questions= new ArrayList<>();
+        List<QuestionResponse> questions = new ArrayList<>();
+
         for (ExamQuestionMapping mapping : mappings) {
-            questions.add(mapping.getQuestion());
+            Question question = mapping.getQuestion();
+          List<MCQOption> options = MCQOptionRepository.findAllByQuestion(question);
+            questions.add(new QuestionResponse(question.getQuestion_id(), question.getText(), options));
         }
+        ExamDetails examDetails = new ExamDetails(
+                exam.getDuration(),
+                exam.getTitle(),
+                exam.getDescription()
+        );
         ExamLog examLog = new ExamLog();
         examLog.setExam(exam);
         examLog.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        examLog.setCandidate(candidateService.getCurrentCandidate(request).orElseThrow(() -> new RuntimeException("Candidate not found")));
+        examLog.setCandidate(candidateService.getCurrentCandidate(request)
+                .orElseThrow(() -> new RuntimeException("Candidate not found")));
         examLogRepository.save(examLog);
-        return questions;
+        ExamResponse res = new ExamResponse(questions,examDetails);
+        return res;
     }
+
 
     public void saveMcqResponses(int exam_id, List<Response> responses) {
         Exam exam = examRepository.findById(exam_id)

@@ -86,11 +86,13 @@ public class QuestionController {
     @PostMapping("{q_id}/option")
     public ResponseEntity<?> addOption(@PathVariable int q_id, @RequestBody MCQOption option) {
         try {
+            System.out.println(option);
             return ResponseEntity.ok(questionService.addOption(q_id, option));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: Invalid option");
         }
     }
+
 
     @GetMapping("category/{category}")
     public ResponseEntity<?> getQuestionsByCategory(@PathVariable String category) {

@@ -43,13 +43,14 @@ public class Question {
     @NotNull
     private int marks;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<MCQOption> options;
-
-    @JsonBackReference
+    @JsonBackReference(value = "question-mapping")
     @ToString.Exclude
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExamQuestionMapping> question;
+
+    @JsonManagedReference(value = "question-options")
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MCQOption> options;
+
+
 }
