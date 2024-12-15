@@ -46,12 +46,23 @@ public class CandidateExamController {
         }
     }
 
-    @PostMapping("{exam_id}/submit/mcq")
-    public ResponseEntity<?> submitMcqResponses(@PathVariable int exam_id,
+    @PostMapping("{exam_id}/submit/logical")
+    public ResponseEntity<?> submitLogicalResponses(@PathVariable int exam_id,
                                                 @RequestBody List<Response> responses) {
         try {
             candidateExamService.saveMcqResponses(exam_id, responses);
-            return new ResponseEntity<>("MCQ responses submitted successfully.", HttpStatus.OK);
+            return new ResponseEntity<>("Logical MCQ responses submitted successfully.", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("{exam_id}/submit/technical")
+    public ResponseEntity<?> submitTechnicalResponses(@PathVariable int exam_id,
+                                                @RequestBody List<Response> responses) {
+        try {
+            candidateExamService.saveMcqResponses(exam_id, responses);
+            return new ResponseEntity<>("Technical MCQ responses submitted successfully.", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

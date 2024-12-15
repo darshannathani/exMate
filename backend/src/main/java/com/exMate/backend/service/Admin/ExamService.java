@@ -145,10 +145,10 @@ public class ExamService {
 
         ExamDifficulty examDifficulty = ExamDifficulty.valueOf(exam.getDifficulty().toString());
 
-        List<Question> mcqQuestions = allQuestions.stream()
+        List<Question> technicalMcqQuestions = allQuestions.stream()
                 .filter(q -> q.getDifficulty() != null &&
                         q.getDifficulty().equals(examDifficulty) &&
-                        q.getSection_type() == SectionType.MCQ)
+                        q.getSection_type() == SectionType.TECHNICAL)
                 .collect(Collectors.toList());
 
         List<Question> programmingQuestions = allQuestions.stream()
@@ -157,23 +157,23 @@ public class ExamService {
                         q.getSection_type() == SectionType.PROGRAMMING)
                 .collect(Collectors.toList());
 
-        List<Question> databaseQuestions = allQuestions.stream()
+        List<Question> logicalMcqQuestions = allQuestions.stream()
                 .filter(q -> q.getDifficulty() != null &&
                         q.getDifficulty().equals(examDifficulty) &&
-                        q.getSection_type() == SectionType.DATABASE)
+                        q.getSection_type() == SectionType.LOGICAL)
                 .collect(Collectors.toList());
 
-        Collections.shuffle(mcqQuestions);
+        Collections.shuffle(technicalMcqQuestions);
         Collections.shuffle(programmingQuestions);
-        Collections.shuffle(databaseQuestions);
+        Collections.shuffle(logicalMcqQuestions);
 
-        mcqQuestions = mcqQuestions.subList(0, Math.min(exam.getMcq(), mcqQuestions.size()));
+        technicalMcqQuestions = technicalMcqQuestions.subList(0, Math.min(exam.getMcq(), technicalMcqQuestions.size()));
         programmingQuestions = programmingQuestions.subList(0, Math.min(exam.getProgramming(), programmingQuestions.size()));
-        databaseQuestions = databaseQuestions.subList(0, Math.min(exam.getDb(), databaseQuestions.size()));
+        logicalMcqQuestions = logicalMcqQuestions.subList(0, Math.min(exam.getDb(), logicalMcqQuestions.size()));
 
         List<ExamQuestionMapping> mappings = new ArrayList<>();
 
-        for (Question question : mcqQuestions) {
+        for (Question question : technicalMcqQuestions) {
             ExamQuestionMapping mapping = new ExamQuestionMapping();
             mapping.setExam(exam);
             mapping.setQuestion(question);
@@ -187,7 +187,7 @@ public class ExamService {
             mappings.add(mapping);
         }
 
-        for (Question question : databaseQuestions) {
+        for (Question question : logicalMcqQuestions) {
             ExamQuestionMapping mapping = new ExamQuestionMapping();
             mapping.setExam(exam);
             mapping.setQuestion(question);

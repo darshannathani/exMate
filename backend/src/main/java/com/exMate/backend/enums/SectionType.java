@@ -1,7 +1,7 @@
 package com.exMate.backend.enums;
 
 public enum SectionType {
-    MCQ,
+    LOGICAL,
     PROGRAMMING,
-    DATABASE
+    TECHNICAL
 }

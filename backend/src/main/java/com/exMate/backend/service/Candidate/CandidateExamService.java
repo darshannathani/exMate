@@ -64,8 +64,8 @@ public class CandidateExamService {
 
         for (ExamQuestionMapping mapping : mappings) {
             Question question = mapping.getQuestion();
-          List<MCQOption> options = MCQOptionRepository.findAllByQuestion(question);
-            questions.add(new QuestionResponse(question.getQuestion_id(), question.getText(), options));
+            List<MCQOption> options = MCQOptionRepository.findAllByQuestion(question);
+            questions.add(new QuestionResponse(question, options));
         }
         ExamDetails examDetails = new ExamDetails(
                 exam.getDuration(),
