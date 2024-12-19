@@ -46,47 +46,24 @@ public class CandidateExamController {
         }
     }
 
-    @PostMapping("{exam_id}/submit/logical")
-    public ResponseEntity<?> submitLogicalResponses(@PathVariable int exam_id,
-                                                @RequestBody List<Response> responses) {
+    @PostMapping("{exam_id}/submit")
+    public ResponseEntity<?> saveResponses(@PathVariable int exam_id,
+                                           @RequestBody List<Response> responses) {
         try {
-            candidateExamService.saveMcqResponses(exam_id, responses);
-            return new ResponseEntity<>("Logical MCQ responses submitted successfully.", HttpStatus.OK);
+            candidateExamService.saveResponses(exam_id, responses);
+            return new ResponseEntity<>("Responses submitted successfully.", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("{exam_id}/submit/technical")
-    public ResponseEntity<?> submitTechnicalResponses(@PathVariable int exam_id,
-                                                @RequestBody List<Response> responses) {
+    @PostMapping("{exam_id}/end")
+    public ResponseEntity<?> endExam(@PathVariable int exam_id, HttpServletRequest request) {
         try {
-            candidateExamService.saveMcqResponses(exam_id, responses);
-            return new ResponseEntity<>("Technical MCQ responses submitted successfully.", HttpStatus.OK);
+            candidateExamService.endExam(exam_id, request);
+            return new ResponseEntity<>("Exam ended successfully", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("{exam_id}/submit/programming")
-    public ResponseEntity<?> submitProgrammingResponses(@PathVariable int exam_id,
-                                                        @RequestBody List<Response> responses) {
-        try {
-            candidateExamService.saveProgrammingResponses(exam_id, responses);
-            return new ResponseEntity<>("Programming responses submitted successfully.", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("{exam_id}/submit/database")
-    public ResponseEntity<?> submitDatabaseResponses(@PathVariable int exam_id,
-                                                        @RequestBody List<Response> responses) {
-        try {
-            candidateExamService.saveDatabaseResponses(exam_id, responses);
-            return new ResponseEntity<>("Database responses submitted successfully.", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

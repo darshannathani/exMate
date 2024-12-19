@@ -77,42 +77,47 @@ public class CandidateExamService {
         examLog.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         examLog.setCandidate(candidateService.getCurrentCandidate(request)
                 .orElseThrow(() -> new RuntimeException("Candidate not found")));
+        examLog.setExamFlag(0);
         examLogRepository.save(examLog);
         ExamResponse res = new ExamResponse(questions,examDetails);
         return res;
     }
 
 
-    public void saveMcqResponses(int exam_id, List<Response> responses) {
+    public void saveResponses(int exam_id, List<Response> responses) {
         Exam exam = examRepository.findById(exam_id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
+
+        Candidate candidate = candidateService.getCurrentCandidate(null)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        // Check if exam is already ended
+        ExamLog examLog = examLogRepository.findByExamAndCandidate(exam, candidate)
+                .orElseThrow(() -> new RuntimeException("Exam log not found"));
+
+        if (examLog.getExamFlag() == 1) {
+            throw new RuntimeException("Exam has already been submitted");
+        }
+
         for (Response response : responses) {
-            response.setCandidate(candidateService.getCurrentCandidate(null).orElseThrow(() -> new RuntimeException("Candidate not found")));
+            response.setCandidate(candidate);
             response.setExam(exam);
             response.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         }
         responseRepository.saveAll(responses);
     }
 
-    public void saveProgrammingResponses(int exam_id, List<Response> responses) {
+    public void endExam(int exam_id, HttpServletRequest request) {
         Exam exam = examRepository.findById(exam_id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
-        for (Response response : responses) {
-            response.setCandidate(candidateService.getCurrentCandidate(null).orElseThrow(() -> new RuntimeException("Candidate not found")));
-            response.setExam(exam);
-            response.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        }
-        responseRepository.saveAll(responses);
-    }
 
-    public void saveDatabaseResponses(int exam_id, List<Response> responses) {
-        Exam exam = examRepository.findById(exam_id)
-                .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
-        for (Response response : responses) {
-            response.setCandidate(candidateService.getCurrentCandidate(null).orElseThrow(() -> new RuntimeException("Candidate not found")));
-            response.setExam(exam);
-            response.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        }
-        responseRepository.saveAll(responses);
+        Candidate candidate = candidateService.getCurrentCandidate(request)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        ExamLog examLog = examLogRepository.findByExamAndCandidate(exam, candidate)
+                .orElseThrow(() -> new RuntimeException("Exam log not found"));
+
+        examLog.setExamFlag(1);
+        examLogRepository.save(examLog);
     }
 }

@@ -32,24 +32,13 @@ export const candidateService = {
         return response.data;
     },
 
-    submitLogicalSection: async (data) => {
-        const response = await api.post(`/candidate/exam/${data.examId}/submit/logical`, {
-            answers: data.responses
-        });
+    submitResponses: async (examId, responses) => {
+        const response = await api.post(`/candidate/exam/${examId}/submit`, responses);
         return response.data;
     },
 
-    submitTechnicalSection: async (data) => {
-        const response = await api.post(`/candidate/exam/${data.examId}/submit/technical`, {
-            answers: data.responses
-        });
+    endExam: async (examId) => {
+        const response = await api.post(`/candidate/exam/${examId}/end`);
         return response.data;
-    },
-
-    submitProgrammingSection: async (data) => {
-        const response = await api.post(`/candidate/exam/${data.examId}/submit/programming`, {
-            answers: data.responses
-        });
-        return response.data;
-    },
+    }
 };

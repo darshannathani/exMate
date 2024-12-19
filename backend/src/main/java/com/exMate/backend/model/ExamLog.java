@@ -29,7 +29,6 @@ public class ExamLog {
     @JoinColumn(name = "exam_id")
     private Exam exam;
 
-    private String answer;
+    private int exam_flag;
     private LocalDateTime timestamp;
-
 }
