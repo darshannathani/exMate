@@ -33,6 +33,59 @@ const ExamPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
     const [examDetails, setExamDetails] = useState(null);
+    const [examEnded, setExamEnded] = useState(false);
+
+    const handleSectionSubmit = async (section) => {
+        try {
+            setIsSubmitting(true);
+            
+            const prepareResponses = (section) => {
+                if (section === 'PROGRAMMING') {
+                    return Object.entries(codeAnswers).map(([questionId, programmingResponse]) => ({
+                        question: { question_id: Number(questionId) },
+                        programming_response: programmingResponse
+                    }));
+                }
+
+                return Object.entries(selectedAnswers)
+                    .filter(([qId]) => 
+                        questions.find(q => 
+                            q.question.question_id === Number(qId) && 
+                            q.question.section_type === section
+                        )
+                    )
+                    .map(([questionId, optionId]) => ({
+                        question: { question_id: Number(questionId) },
+                        option: { option_id: Number(optionId) }
+                    }));
+            };
+
+            const responses = prepareResponses(section);
+            await candidateService.submitResponses(Number(examId), responses);
+
+            const sections = ['LOGICAL', 'TECHNICAL', 'PROGRAMMING'];
+            const currentIndex = sections.indexOf(section);
+            if (currentIndex < sections.length - 1) {
+                setCurrentSection(sections[currentIndex + 1]);
+                setCurrentQuestionIndex(0);
+            }
+        } catch (error) {
+            console.error(`Failed to submit ${section} section`, error);
+        } finally {
+            setIsSubmitting(false);
+            setConfirmSubmitOpen(false);
+        }
+    };
+
+    const handleEndExam = async () => {
+        try {
+            await candidateService.endExam(Number(examId));
+            setExamEnded(true);
+            navigate('/exam-result');
+        } catch (error) {
+            console.error('Failed to end exam', error);
+        }
+    };
 
     const sectionedQuestions = {
         LOGICAL: questions.filter(q => q.question.section_type === 'LOGICAL'),
@@ -61,59 +114,6 @@ const ExamPage = () => {
         fetchExamQuestions();
     }, [examId, navigate]);
 
-    const handleSectionSubmit = async (section) => {
-        try {
-            setIsSubmitting(true);
-            
-            const prepareResponses = (section) => {
-                if (section === 'PROGRAMMING') {
-                    return Object.entries(codeAnswers).map(([questionId, programmingResponse]) => ({
-                        question: { question_id: Number(questionId) },
-                        programming_response: programmingResponse
-                    }));
-                }
-
-                return Object.entries(selectedAnswers)
-                    .filter(([qId]) => 
-                        questions.find(q => 
-                            q.question.question_id === Number(qId) && 
-                            q.question.section_type === section
-                        )
-                    )
-                    .map(([questionId, optionId]) => ({
-                        question: { question_id: Number(questionId) },
-                        option: { option_id: Number(optionId) }
-                    }));
-            };
-
-            const responses = prepareResponses(section);
-
-            const submissionMethod = {
-                'LOGICAL': candidateService.submitLogicalSection,
-                'TECHNICAL': candidateService.submitTechnicalSection,
-                'PROGRAMMING': candidateService.submitProgrammingSection
-            }[section];
-
-            await submissionMethod({
-                examId: Number(examId),
-                responses
-            });
-
-            const sections = ['LOGICAL', 'TECHNICAL', 'PROGRAMMING'];
-            const currentIndex = sections.indexOf(section);
-            if (currentIndex < sections.length - 1) {
-                setCurrentSection(sections[currentIndex + 1]);
-                setCurrentQuestionIndex(0);
-            } else {
-                navigate('/exam-result');
-            }
-        } catch (error) {
-            console.error(`Failed to submit ${section} section`, error);
-        } finally {
-            setIsSubmitting(false);
-            setConfirmSubmitOpen(false);
-        }
-    };
 
     const handleAnswerSelect = (questionId, selectedOption) => {
         setSelectedAnswers(prev => ({
@@ -228,33 +228,15 @@ const ExamPage = () => {
                 <Grid item xs={8}>
                     {renderQuestion()}
                     
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-                        <Button 
-                            variant="outlined" 
-                            onClick={() => setCurrentQuestionIndex(prev => prev - 1)}
-                            disabled={currentQuestionIndex === 0}
+                    <Box sx={{ position: 'fixed', top: 16, right: 16 }}>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => setConfirmSubmitOpen(true)}
+                            disabled={examEnded}
                         >
-                            Previous
+                            End Exam
                         </Button>
-                        
-                        {currentQuestionIndex === sectionedQuestions[currentSection].length - 1 ? (
-                            <Button 
-                                variant="contained" 
-                                color="primary"
-                                onClick={() => setConfirmSubmitOpen(true)}
-                                // disabled={!sectionCompletion[currentSection]}
-                            >
-                                Submit {currentSection.toLowerCase()} Section
-                            </Button>
-                        ) : (
-                            <Button 
-                                variant="contained" 
-                                color="primary"
-                                onClick={() => setCurrentQuestionIndex(prev => prev + 1)}
-                            >
-                                Next
-                            </Button>
-                        )}
                     </Box>
                 </Grid>
 
@@ -296,11 +278,11 @@ const ExamPage = () => {
                 open={confirmSubmitOpen}
                 onClose={() => setConfirmSubmitOpen(false)}
             >
-                <DialogTitle>Confirm Section Submission</DialogTitle>
+                <DialogTitle>Confirm Exam Submission</DialogTitle>
                 <DialogContent>
                     <Typography>
-                        Are you sure you want to submit the {currentSection.toLowerCase()} section? 
-                        You cannot change your answers after submission.
+                        Are you sure you want to end the exam? 
+                        This action cannot be undone and you won&apos;t be able to modify any answers.
                     </Typography>
                 </DialogContent>
                 <DialogActions>
@@ -309,11 +291,11 @@ const ExamPage = () => {
                     </Button>
                     <Button 
                         variant="contained" 
-                        color="primary" 
-                        onClick={() => handleSectionSubmit(currentSection)}
+                        color="error" 
+                        onClick={handleEndExam}
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? 'Submitting...' : 'Confirm Submit'}
+                        {isSubmitting ? 'Submitting...' : 'End Exam'}
                     </Button>
                 </DialogActions>
             </Dialog>
