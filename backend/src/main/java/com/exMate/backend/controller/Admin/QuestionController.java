@@ -1,7 +1,6 @@
 package com.exMate.backend.controller.Admin;
 
 import com.exMate.backend.enums.ExamDifficulty;
-import com.exMate.backend.model.Category;
 import com.exMate.backend.model.MCQOption;
 import com.exMate.backend.model.Question;
 import com.exMate.backend.enums.SectionType;
@@ -29,9 +28,7 @@ public class QuestionController {
             question.setImage((String) request.get("image"));
             question.setMarks((int) request.get("marks"));
 
-            String categoryName = (String) request.get("category");
-
-            return ResponseEntity.ok(questionService.addQuestion(question, categoryName));
+            return ResponseEntity.ok(questionService.addQuestion(question));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: "+e);
         }
@@ -47,9 +44,7 @@ public class QuestionController {
             question.setImage((String) request.get("image"));
             question.setMarks((int) request.get("marks"));
 
-            String categoryName = (String) request.get("category");
-
-            return ResponseEntity.ok(questionService.updateQuestion(q_id, question, categoryName));
+            return ResponseEntity.ok(questionService.updateQuestion(q_id, question));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: Invalid question");
         }
@@ -90,16 +85,6 @@ public class QuestionController {
             return ResponseEntity.ok(questionService.addOption(q_id, option));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: Invalid option");
-        }
-    }
-
-
-    @GetMapping("category/{category}")
-    public ResponseEntity<?> getQuestionsByCategory(@PathVariable String category) {
-        try {
-            return ResponseEntity.ok(questionService.getQuestionsByCategory(category));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: Invalid category");
         }
     }
 

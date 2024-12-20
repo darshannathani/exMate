@@ -1,9 +1,7 @@
 package com.exMate.backend.service.Admin;
 
-import com.exMate.backend.model.Category;
 import com.exMate.backend.model.MCQOption;
 import com.exMate.backend.model.Question;
-import com.exMate.backend.repository.CategoryRepository;
 import com.exMate.backend.repository.MCQOptionRepository;
 import com.exMate.backend.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,31 +18,20 @@ public class QuestionService {
     @Autowired
     private MCQOptionRepository mcqOptionRepository;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    public QuestionService(QuestionRepository questionRepository, MCQOptionRepository mcqOptionRepository, CategoryRepository categoryRepository) {
+    public QuestionService(QuestionRepository questionRepository, MCQOptionRepository mcqOptionRepository) {
         this.questionRepository = questionRepository;
         this.mcqOptionRepository = mcqOptionRepository;
-        this.categoryRepository = categoryRepository;
     }
 
-    public Question addQuestion(Question question, String categoryName) {
-        Category category = categoryRepository.findByName(categoryName)
-                .orElseGet(() -> categoryRepository.save(new Category(null, categoryName, null)));
-
-        question.setCategory(category);
+    public Question addQuestion(Question question) {
         return questionRepository.save(question);
     }
 
-    public Question updateQuestion(int q_id, Question question, String categoryName) {
-        Category category = categoryRepository.findByName(categoryName)
-                .orElseGet(() -> categoryRepository.save(new Category(null, categoryName, null)));
+    public Question updateQuestion(int q_id, Question question) {
 
         Question existingQuestion = questionRepository.findById(q_id)
                 .orElseThrow(() -> new RuntimeException("Question not found with id: " + q_id));
 
-        existingQuestion.setCategory(category);
         existingQuestion.setSection_type(question.getSection_type());
         existingQuestion.setDifficulty(question.getDifficulty());
         existingQuestion.setText(question.getText());
@@ -105,7 +92,4 @@ public class QuestionService {
         mcqOptionRepository.deleteByQuestion(question);
     }
 
-    public Iterable<Question> getQuestionsByCategory(String category) {
-        return questionRepository.findByCategory_Name(category);
-    }
 }
