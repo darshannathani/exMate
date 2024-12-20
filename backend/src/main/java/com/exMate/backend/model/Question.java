@@ -24,10 +24,6 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int question_id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "cat_id")
-    private Category category;
-
     @Enumerated(EnumType.STRING)
     private SectionType section_type;
 

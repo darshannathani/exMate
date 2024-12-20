@@ -1,7 +1,5 @@
 package com.exMate.backend.controller.Candidate;
 
-import com.exMate.backend.model.Candidate;
-import com.exMate.backend.service.Admin.ExamService;
 import com.exMate.backend.service.Candidate.CandidateExamService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +58,7 @@ public class CandidateExamController {
     @PostMapping("{exam_id}/end")
     public ResponseEntity<?> endExam(@PathVariable int exam_id, HttpServletRequest request) {
         try {
-            candidateExamService.endExam(exam_id, request);
-            return new ResponseEntity<>("Exam ended successfully", HttpStatus.OK);
+            return new ResponseEntity<>(candidateExamService.endExam(exam_id, request), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
