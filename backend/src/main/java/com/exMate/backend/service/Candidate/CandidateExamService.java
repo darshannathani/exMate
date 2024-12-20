@@ -77,7 +77,7 @@ public class CandidateExamService {
         examLog.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         examLog.setCandidate(candidateService.getCurrentCandidate(request)
                 .orElseThrow(() -> new RuntimeException("Candidate not found")));
-        examLog.setExamFlag(0);
+        examLog.setExam_flag(0);
         examLogRepository.save(examLog);
         ExamResponse res = new ExamResponse(questions,examDetails);
         return res;
@@ -95,7 +95,7 @@ public class CandidateExamService {
         ExamLog examLog = examLogRepository.findByExamAndCandidate(exam, candidate)
                 .orElseThrow(() -> new RuntimeException("Exam log not found"));
 
-        if (examLog.getExamFlag() == 1) {
+        if (examLog.getExam_flag() == 1) {
             throw new RuntimeException("Exam has already been submitted");
         }
 
@@ -107,17 +107,19 @@ public class CandidateExamService {
         responseRepository.saveAll(responses);
     }
 
-    public void endExam(int exam_id, HttpServletRequest request) {
+    public String endExam(int exam_id, HttpServletRequest request) {
         Exam exam = examRepository.findById(exam_id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
 
         Candidate candidate = candidateService.getCurrentCandidate(request)
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
 
-        ExamLog examLog = examLogRepository.findByExamAndCandidate(exam, candidate)
-                .orElseThrow(() -> new RuntimeException("Exam log not found"));
-
-        examLog.setExamFlag(1);
+        ExamLog examLog = new ExamLog();
+        examLog.setCandidate(candidate);
+        examLog.setExam(exam);
+        examLog.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        examLog.setExam_flag(1);
         examLogRepository.save(examLog);
+        return "Exam ended successfully";
     }
 }
