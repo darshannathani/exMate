@@ -21,6 +21,7 @@ import {
 import { Editor } from '@monaco-editor/react';
 import { candidateService } from '../../api/services/candidateService';
 import ExamTimerDisplay from './ExamTimerDisplay';
+import FullScreenHandler from './FullScreenHandler';
 
 const ExamPage = () => {
     const { examId } = useParams();
@@ -79,11 +80,15 @@ const ExamPage = () => {
 
     const handleEndExam = async () => {
         try {
+            setIsSubmitting(true);
             await candidateService.endExam(Number(examId));
             setExamEnded(true);
-            navigate('/exam-result');
+            setConfirmSubmitOpen(false);
+            navigate('/candidate/exam-result');
         } catch (error) {
             console.error('Failed to end exam', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -120,6 +125,16 @@ const ExamPage = () => {
             ...prev,
             [questionId]: selectedOption
         }));
+    };
+
+    const handleTabSwitch = async () => {
+        if (!examEnded) {
+            try {
+                await handleEndExam();
+            } catch (error) {
+                console.error('Failed to end exam on tab switch', error);
+            }
+        }
     };
 
     const handleCodeAnswer = (questionId, code) => {
@@ -180,126 +195,128 @@ const ExamPage = () => {
     if (!examDetails) return null;
 
     return (
-        <Container maxWidth="xl" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <ExamTimerDisplay 
-                totalTime={examDetails.duration} 
-                onTimeUp={() => handleSectionSubmit(currentSection)} 
-            />
-            
-            <Tabs 
-                value={currentSection} 
-                onChange={(_, newValue) => setCurrentSection(newValue)}
-            >
-                <Tab label="Logical" value="LOGICAL" />
-                <Tab label="Technical" value="TECHNICAL" />
-                <Tab label="Programming" value="PROGRAMMING" />
-            </Tabs>
-
-            <Grid container spacing={2} sx={{ height: '100%', mt: 2 }}>
-                <Grid item xs={2}>
-                    <Paper elevation={3} sx={{ p: 2, height: '100%', overflowY: 'auto' }}>
-                        <Typography variant="h6" gutterBottom>
-                            Question Map
-                        </Typography>
-                        {sectionedQuestions[currentSection].map((q, index) => (
-                            <Tooltip 
-                                key={q.question.question_id} 
-                                title={`Question ${index + 1} (${q.question.marks} marks)`}
-                            >
-                                <Button
-                                    variant={currentQuestionIndex === index ? 'contained' : 'outlined'}
-                                    color={
-                                        (currentSection === 'PROGRAMMING' && 
-                                         codeAnswers[q.question.question_id]) ||
-                                        selectedAnswers[q.question.question_id] 
-                                            ? 'success' 
-                                            : 'primary'
-                                    }
-                                    onClick={() => setCurrentQuestionIndex(index)}
-                                    sx={{ m: 0.5, minWidth: 40 }}
-                                >
-                                    {index + 1}
-                                </Button>
-                            </Tooltip>
-                        ))}
-                    </Paper>
-                </Grid>
+        <FullScreenHandler onTabSwitch={handleTabSwitch} isExamEnded={examEnded}>
+            <Container maxWidth="xl" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+                <ExamTimerDisplay 
+                    totalTime={examDetails.duration} 
+                    onTimeUp={() => handleSectionSubmit(currentSection)} 
+                />
                 
-                <Grid item xs={8}>
-                    {renderQuestion()}
+                <Tabs 
+                    value={currentSection} 
+                    onChange={(_, newValue) => setCurrentSection(newValue)}
+                >
+                    <Tab label="Logical" value="LOGICAL" />
+                    <Tab label="Technical" value="TECHNICAL" />
+                    <Tab label="Programming" value="PROGRAMMING" />
+                </Tabs>
+
+                <Grid container spacing={2} sx={{ height: '100%', mt: 2 }}>
+                    <Grid item xs={2}>
+                        <Paper elevation={3} sx={{ p: 2, height: '100%', overflowY: 'auto' }}>
+                            <Typography variant="h6" gutterBottom>
+                                Question Map
+                            </Typography>
+                            {sectionedQuestions[currentSection].map((q, index) => (
+                                <Tooltip 
+                                    key={q.question.question_id} 
+                                    title={`Question ${index + 1} (${q.question.marks} marks)`}
+                                >
+                                    <Button
+                                        variant={currentQuestionIndex === index ? 'contained' : 'outlined'}
+                                        color={
+                                            (currentSection === 'PROGRAMMING' && 
+                                             codeAnswers[q.question.question_id]) ||
+                                            selectedAnswers[q.question.question_id] 
+                                                ? 'success' 
+                                                : 'primary'
+                                        }
+                                        onClick={() => setCurrentQuestionIndex(index)}
+                                        sx={{ m: 0.5, minWidth: 40 }}
+                                    >
+                                        {index + 1}
+                                    </Button>
+                                </Tooltip>
+                            ))}
+                        </Paper>
+                    </Grid>
                     
-                    <Box sx={{ position: 'fixed', top: 16, right: 16 }}>
-                        <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() => setConfirmSubmitOpen(true)}
-                            disabled={examEnded}
-                        >
-                            End Exam
+                    <Grid item xs={8}>
+                        {renderQuestion()}
+                        
+                        <Box sx={{ position: 'fixed', top: 16, right: 16 }}>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                onClick={() => setConfirmSubmitOpen(true)}
+                                disabled={examEnded}
+                            >
+                                End Exam
+                            </Button>
+                        </Box>
+                    </Grid>
+
+                    <Grid item xs={2}>
+                        <Paper elevation={3} sx={{ p: 2, height: '100%', overflowY: 'auto' }}>
+                            <Typography variant="h6" gutterBottom>
+                                Section Progress
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Questions Attempted: {
+                                    currentSection === 'PROGRAMMING' 
+                                        ? Object.keys(codeAnswers).filter(id => 
+                                            questions.find(q => 
+                                                q.question.question_id === Number(id) && 
+                                                q.question.section_type === currentSection
+                                            )
+                                        ).length
+                                        : Object.keys(selectedAnswers).filter(id => 
+                                            questions.find(q => 
+                                                q.question.question_id === Number(id) && 
+                                                q.question.section_type === currentSection
+                                            )
+                                        ).length
+                                } / {sectionedQuestions[currentSection].length}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Total Marks: {
+                                    sectionedQuestions[currentSection].reduce(
+                                        (sum, q) => sum + q.question.marks, 
+                                        0
+                                    )
+                                }
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                </Grid>
+
+                <Dialog
+                    open={confirmSubmitOpen}
+                    onClose={() => setConfirmSubmitOpen(false)}
+                >
+                    <DialogTitle>Confirm Exam Submission</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Are you sure you want to end the exam? 
+                            This action cannot be undone and you won&apos;t be able to modify any answers.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setConfirmSubmitOpen(false)}>
+                            Cancel
                         </Button>
-                    </Box>
-                </Grid>
-
-                <Grid item xs={2}>
-                    <Paper elevation={3} sx={{ p: 2, height: '100%', overflowY: 'auto' }}>
-                        <Typography variant="h6" gutterBottom>
-                            Section Progress
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Questions Attempted: {
-                                currentSection === 'PROGRAMMING' 
-                                    ? Object.keys(codeAnswers).filter(id => 
-                                        questions.find(q => 
-                                            q.question.question_id === Number(id) && 
-                                            q.question.section_type === currentSection
-                                        )
-                                    ).length
-                                    : Object.keys(selectedAnswers).filter(id => 
-                                        questions.find(q => 
-                                            q.question.question_id === Number(id) && 
-                                            q.question.section_type === currentSection
-                                        )
-                                    ).length
-                            } / {sectionedQuestions[currentSection].length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Total Marks: {
-                                sectionedQuestions[currentSection].reduce(
-                                    (sum, q) => sum + q.question.marks, 
-                                    0
-                                )
-                            }
-                        </Typography>
-                    </Paper>
-                </Grid>
-            </Grid>
-
-            <Dialog
-                open={confirmSubmitOpen}
-                onClose={() => setConfirmSubmitOpen(false)}
-            >
-                <DialogTitle>Confirm Exam Submission</DialogTitle>
-                <DialogContent>
-                    <Typography>
-                        Are you sure you want to end the exam? 
-                        This action cannot be undone and you won&apos;t be able to modify any answers.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setConfirmSubmitOpen(false)}>
-                        Cancel
-                    </Button>
-                    <Button 
-                        variant="contained" 
-                        color="error" 
-                        onClick={handleEndExam}
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? 'Submitting...' : 'End Exam'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Container>
+                        <Button 
+                            variant="contained" 
+                            color="error" 
+                            onClick={handleEndExam}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Submitting...' : 'End Exam'}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </Container>
+        </FullScreenHandler>
     );
 };
 

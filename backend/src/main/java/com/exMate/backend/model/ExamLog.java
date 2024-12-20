@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class ExamLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int log_id;
+    private int exam_log_id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "candidate_id")
