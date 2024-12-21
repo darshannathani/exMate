@@ -31,11 +31,6 @@ export const questionService = {
         return response.data;
     },
 
-    // getQuestionsByCategory: async (category) => {
-    //     const response = await api.get(`/admin/question/category/${category}`);
-    //     return response.data;
-    // },
-
     updateOption: async (optionId, optionData) => {
         const response = await api.put(`/admin/question/option/${optionId}`, optionData);
         return response.data;
