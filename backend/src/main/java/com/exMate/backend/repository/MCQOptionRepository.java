@@ -9,7 +9,7 @@ import java.util.List;
 public interface MCQOptionRepository extends JpaRepository<MCQOption, Integer> {
     void deleteByQuestion(Question question);
 
-    MCQOption findByQuestion(Question question);
+    List<MCQOption> findByQuestion(Question question);
 
     List<MCQOption> findAllByQuestion(Question question);
 

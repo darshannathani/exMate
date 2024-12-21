@@ -2,6 +2,7 @@ package com.exMate.backend.model;
 
 import com.exMate.backend.enums.ExamDifficulty;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,11 +35,11 @@ public class Exam {
     @Enumerated(EnumType.STRING)
     private ExamDifficulty difficulty;
 
-    private int mcq;
+    private int technical;
     private int programming;
-    private int db;
+    private int logical;
 
-    private int Total_marks;
+    private int total_marks;
 
     @NotNull
     private int duration;
@@ -46,12 +47,12 @@ public class Exam {
     private LocalDateTime start_date;
     private LocalDateTime end_date;
 
-    @JsonBackReference
+    @JsonIgnore
     @ToString.Exclude
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExamQuestionMapping> exam;
 
-    @JsonBackReference
+    @JsonIgnore
     @ToString.Exclude
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExamLog> examLog;

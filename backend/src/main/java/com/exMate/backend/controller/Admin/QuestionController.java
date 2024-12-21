@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,26 +26,31 @@ public class QuestionController {
             Question question = new Question();
             question.setText((String) request.get("text"));
             question.setDifficulty(ExamDifficulty.valueOf((String) request.get("difficulty")));
-            question.setSection_type(SectionType.valueOf((String) request.get("section")));
+            question.setSection_type(SectionType.valueOf((String) request.get("section_type")));
             question.setImage((String) request.get("image"));
             question.setMarks((int) request.get("marks"));
+            List<Map<String, Object>> optionsData = (List<Map<String, Object>>) request.get("options");
+            List<MCQOption> options = new ArrayList<>();
 
-            return ResponseEntity.ok(questionService.addQuestion(question));
+            if (optionsData != null) {
+                for (Map<String, Object> optionData : optionsData) {
+                    MCQOption option = new MCQOption();
+                    option.setOption_text((String) optionData.get("option_text"));
+                    option.setIs_correct((String) optionData.get("is_correct"));
+                    option.setImage((String) optionData.get("image"));
+                    options.add(option);
+                }
+            }
+
+            return ResponseEntity.ok(questionService.addQuestionWithOptions(question, options));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: "+e);
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
     @PutMapping("{q_id}")
-    public ResponseEntity<?> updateQuestion(@PathVariable int q_id, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> updateQuestion(@PathVariable int q_id, @RequestBody Question question) {
         try {
-            Question question = new Question();
-            question.setText((String) request.get("text"));
-            question.setDifficulty(ExamDifficulty.valueOf((String) request.get("difficulty")));
-            question.setSection_type(SectionType.valueOf((String) request.get("section")));
-            question.setImage((String) request.get("image"));
-            question.setMarks((int) request.get("marks"));
-
             return ResponseEntity.ok(questionService.updateQuestion(q_id, question));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: Invalid question");
@@ -81,7 +88,6 @@ public class QuestionController {
     @PostMapping("{q_id}/option")
     public ResponseEntity<?> addOption(@PathVariable int q_id, @RequestBody MCQOption option) {
         try {
-            System.out.println(option);
             return ResponseEntity.ok(questionService.addOption(q_id, option));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: Invalid option");
