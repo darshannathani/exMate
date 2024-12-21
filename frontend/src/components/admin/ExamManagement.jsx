@@ -36,6 +36,7 @@ import {
 } from '@mui/icons-material';
 import { examService } from '../../api/services/examService';
 const ExamManagement = () => {
+    let a=1
     const [exams, setExams] = useState([]);
     const [filteredExams, setFilteredExams] = useState([]);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -57,13 +58,14 @@ const ExamManagement = () => {
     });
     const handleViewExamDetails = async (exam) => {
         setSelectedExam(exam);
-        
+    
         try {
             const questions = await examService.getQuestionsByExam(exam.exam_id);
-            setExamQuestions(questions);
+            setExamQuestions(Array.isArray(questions) ? questions : []);
             setDetailsDialogOpen(true);
         } catch (error) {
             console.error('Failed to fetch exam questions', error);
+            setExamQuestions([]);
             alert('Failed to fetch exam questions.');
         }
     };
@@ -73,9 +75,9 @@ const ExamManagement = () => {
         passing_score: 0,
         status: 'ACTIVE',
         difficulty: 'Easy',
-        mcq: 0,
+        logical: 0,
         programming: 0,
-        db: 0,
+        technical: 0,
         Total_marks: 0,
         duration: 0,
         start_date: '',
@@ -145,9 +147,9 @@ const ExamManagement = () => {
                 passing_score: 0,
                 status: 'ACTIVE',
                 difficulty: 'Easy',
-                mcq: 0,
+                logical: 0,
                 programming: 0,
-                db: 0,
+                technical: 0,
                 Total_marks: 0,
                 duration: 0,
                 start_date: '',
@@ -203,11 +205,13 @@ const ExamManagement = () => {
     };
     const handleRegenerateQuestions = async () => {
         try {
-            const regeneratedQuestions = await examService.regenerateQuestions(selectedExam.exam_id);
-            setExamQuestions(regeneratedQuestions);
+            await examService.regenerateQuestions(selectedExam.exam_id);
+            const newQuestions = await examService.getQuestionsByExam(selectedExam.exam_id);
+            setExamQuestions(Array.isArray(newQuestions) ? newQuestions : []);
             alert('Questions regenerated successfully!');
         } catch (error) {
             console.error('Failed to regenerate questions', error);
+            setExamQuestions([]);
             alert('Failed to regenerate questions.');
         }
     };
@@ -355,7 +359,6 @@ const ExamManagement = () => {
                             <TableCell>ID</TableCell>
                             <TableCell>Title</TableCell>
                             <TableCell>Difficulty</TableCell>
-                            <TableCell>Total Marks</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell>Actions</TableCell>
                         </TableRow>
@@ -363,10 +366,9 @@ const ExamManagement = () => {
                     <TableBody>
                         {filteredExams.map((exam) => (
                             <TableRow key={exam.exam_id}>
-                                <TableCell>{exam.exam_id}</TableCell>
+                                <TableCell>{a}</TableCell>
                                 <TableCell>{exam.title}</TableCell>
                                 <TableCell>{exam.difficulty}</TableCell>
-                                <TableCell>{exam.Total_marks}</TableCell>
                                 <TableCell>{exam.status}</TableCell>
                                 <TableCell>
                                     <Tooltip title="View Details">
@@ -466,12 +468,20 @@ const ExamManagement = () => {
                     </Box>
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <TextField
-                            label="MCQ Questions"
+                            label="Logical Questions"
                             type="number"
                             fullWidth
                             margin="normal"
-                            value={newExam.mcq}
-                            onChange={(e) => setNewExam(prev => ({ ...prev, mcq: Number(e.target.value) }))}
+                            value={newExam.logical}
+                            onChange={(e) => setNewExam(prev => ({ ...prev, logical: Number(e.target.value) }))}
+                        />
+                        <TextField
+                            label="Technical Questions"
+                            type="number"
+                            fullWidth
+                            margin="normal"
+                            value={newExam.technical}
+                            onChange={(e) => setNewExam(prev => ({ ...prev, technical: Number(e.target.value) }))}
                         />
                         <TextField
                             label="Programming Questions"
@@ -480,14 +490,6 @@ const ExamManagement = () => {
                             margin="normal"
                             value={newExam.programming}
                             onChange={(e) => setNewExam(prev => ({ ...prev, programming: Number(e.target.value) }))}
-                        />
-                        <TextField
-                            label="Database Questions"
-                            type="number"
-                            fullWidth
-                            margin="normal"
-                            value={newExam.db}
-                            onChange={(e) => setNewExam(prev => ({ ...prev, db: Number(e.target.value) }))}
                         />
                     </Box>
                     <Box sx={{ display: 'flex', gap: 2 }}>
@@ -576,18 +578,28 @@ const ExamManagement = () => {
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell>Question ID</TableCell>
+                                                <TableCell>Question</TableCell>
                                                 <TableCell>Type</TableCell>
                                                 <TableCell>Marks</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {examQuestions.map((question) => (
-                                                <TableRow key={question.question_id}>
-                                                    <TableCell>{question.question_id}</TableCell>
-                                                    <TableCell>{question.type}</TableCell>
-                                                    <TableCell>{question.marks}</TableCell>
+                                        {examQuestions && examQuestions.length > 0 ? (
+                                                examQuestions.map((question) => (
+                                                    <TableRow key={question.question_id}>
+                                                        <TableCell>{question.question_id}</TableCell>
+                                                        <TableCell>{question.text}</TableCell>
+                                                        <TableCell>{question.section_type}</TableCell>
+                                                        <TableCell>{question.marks}</TableCell>
+                                                    </TableRow>
+                                                ))
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={3} align="center">
+                                                        No questions available
+                                                    </TableCell>
                                                 </TableRow>
-                                            ))}
+                                            )}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
@@ -667,12 +679,20 @@ const ExamManagement = () => {
                             </Box>
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 <TextField
-                                    label="MCQ Questions"
+                                    label="Logical Questions"
                                     type="number"
                                     fullWidth
                                     margin="normal"
-                                    value={selectedExam.mcq}
-                                    onChange={(e) => setSelectedExam(prev => ({ ...prev, mcq: Number(e.target.value) }))}
+                                    value={selectedExam.logical}
+                                    onChange={(e) => setSelectedExam(prev => ({ ...prev, logical: Number(e.target.value) }))}
+                                />
+                                <TextField
+                                    label="Technical Questions"
+                                    type="number"
+                                    fullWidth
+                                    margin="normal"
+                                    value={selectedExam.technical}
+                                    onChange={(e) => setSelectedExam(prev => ({ ...prev, technical: Number(e.target.value) }))}
                                 />
                                 <TextField
                                     label="Programming Questions"
@@ -681,14 +701,6 @@ const ExamManagement = () => {
                                     margin="normal"
                                     value={selectedExam.programming}
                                     onChange={(e) => setSelectedExam(prev => ({ ...prev, programming: Number(e.target.value) }))}
-                                />
-                                <TextField
-                                    label="Database Questions"
-                                    type="number"
-                                    fullWidth
-                                    margin="normal"
-                                    value={selectedExam.db}
-                                    onChange={(e) => setSelectedExam(prev => ({ ...prev, db: Number(e.target.value) }))}
                                 />
                             </Box>
                             <Box sx={{ display: 'flex', gap: 2 }}>

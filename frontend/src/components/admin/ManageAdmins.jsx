@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import {
     Container,
     Typography,
-    Grid,
     Paper,
     Button,
     Dialog,
@@ -18,7 +17,6 @@ import {
     TableRow,
     IconButton,
     Box,
-    Tab,
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
 import { adminService } from '../../api/services/adminService';
@@ -84,7 +82,7 @@ const ManageAdmins = () => {
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Typography variant="h4" gutterBottom>
                 Manage Admins
-            </Typography>
+            
             
             <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button 
@@ -96,6 +94,7 @@ const ManageAdmins = () => {
                     Add New Admin
                 </Button>
             </Box>
+            </Typography>
 
             <TableContainer component={Paper}>
                 <Table>
@@ -103,6 +102,7 @@ const ManageAdmins = () => {
                         <TableRow>
                             <TableCell>Name</TableCell>
                             <TableCell>Email</TableCell>
+                            <TableCell>Phone</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
