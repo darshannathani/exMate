@@ -54,9 +54,9 @@ public class ExamService {
         boolean needRegenerate = false;
 
         if (oldExam.getDifficulty() != exam.getDifficulty() ||
-                oldExam.getMcq() != exam.getMcq() ||
+                oldExam.getTechnical() != exam.getTechnical() ||
                 oldExam.getProgramming() != exam.getProgramming() ||
-                oldExam.getDb() != exam.getDb()) {
+                oldExam.getLogical() != exam.getLogical()) {
             needRegenerate = true;
         }
         oldExam.setDescription(exam.getDescription());
@@ -79,9 +79,9 @@ public class ExamService {
         if (exam.getDifficulty() != null) {
             oldExam.setDifficulty(exam.getDifficulty());
         }
-        oldExam.setMcq(exam.getMcq());
+        oldExam.setLogical(exam.getLogical());
         oldExam.setProgramming(exam.getProgramming());
-        oldExam.setDb(exam.getDb());
+        oldExam.setTechnical(exam.getTechnical());
         Exam updatedExam = examRepository.save(oldExam);
         if (needRegenerate) {
             regenerateQuestions(exam_id);
@@ -167,9 +167,9 @@ public class ExamService {
         Collections.shuffle(programmingQuestions);
         Collections.shuffle(logicalMcqQuestions);
 
-        technicalMcqQuestions = technicalMcqQuestions.subList(0, Math.min(exam.getMcq(), technicalMcqQuestions.size()));
+        technicalMcqQuestions = technicalMcqQuestions.subList(0, Math.min(exam.getTechnical(), technicalMcqQuestions.size()));
         programmingQuestions = programmingQuestions.subList(0, Math.min(exam.getProgramming(), programmingQuestions.size()));
-        logicalMcqQuestions = logicalMcqQuestions.subList(0, Math.min(exam.getDb(), logicalMcqQuestions.size()));
+        logicalMcqQuestions = logicalMcqQuestions.subList(0, Math.min(exam.getLogical(), logicalMcqQuestions.size()));
 
         List<ExamQuestionMapping> mappings = new ArrayList<>();
 

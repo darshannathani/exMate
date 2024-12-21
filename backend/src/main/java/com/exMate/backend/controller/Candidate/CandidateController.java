@@ -34,9 +34,9 @@ public class CandidateController {
 
     @PutMapping("{c_id}")
     public ResponseEntity<?> updateCandidate(@PathVariable int c_id, @RequestBody Candidate candidate){
-        try{
+        try {
             return new ResponseEntity<>(candidateService.updateCandidate(c_id, candidate), HttpStatus.OK);
-        } catch(Exception e){
+        } catch(Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

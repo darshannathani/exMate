@@ -3,6 +3,7 @@ package com.exMate.backend.model;
 import com.exMate.backend.enums.ExamDifficulty;
 import com.exMate.backend.enums.SectionType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -39,12 +40,12 @@ public class Question {
     @NotNull
     private int marks;
 
-    @JsonBackReference(value = "question-mapping")
+    @JsonIgnore
     @ToString.Exclude
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExamQuestionMapping> question;
 
-    @JsonManagedReference(value = "question-options")
+    @JsonIgnore
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MCQOption> options;
 
