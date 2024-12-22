@@ -137,7 +137,6 @@ const ExamManagement = () => {
                 start_date: newExam.start_date ? new Date(newExam.start_date).toISOString() : null,
                 end_date: newExam.end_date ? new Date(newExam.end_date).toISOString() : null
             };
-            console.log(examData);
             await examService.createExam(examData);
             alert('Exam created successfully!');
     

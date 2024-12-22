@@ -27,9 +27,6 @@ public class QuestionService {
     @Transactional
     public Question addQuestionWithOptions(Question question, List<MCQOption> options) {
         Question savedQuestion = questionRepository.save(question);
-        for (MCQOption option : options) {
-            System.out.println("Option: " + option);
-        }
         if (options != null && !options.isEmpty()) {
             for (MCQOption option : options) {
                 option.setQuestion(savedQuestion);
