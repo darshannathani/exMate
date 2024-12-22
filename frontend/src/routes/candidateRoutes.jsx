@@ -1,7 +1,6 @@
 import { lazy } from 'react';
 
 const AvailableExams = lazy(() => import('../components/candidate/AvailableExams'));
-const MyResults = lazy(() => import('../components/candidate/MyResults'));
 const Profile = lazy(() => import('../components/candidate/Profile'));
 const StudyMaterials = lazy(() => import('../components/candidate/StudyMaterials'));
 const ExamPage = lazy(() => import('../components/candidate/ExamPage'));
@@ -17,12 +16,8 @@ export const candidateRoutes = [
         element: <ExamPage />,
     },
     {
-        path: '/candidate/exam-result',
-        element: <ExamResultPage />,
-    },
-    {
         path: '/candidate/my-results',
-        element: <MyResults />,
+        element: <ExamResultPage />,
     },
     {
         path: '/candidate/profile',
