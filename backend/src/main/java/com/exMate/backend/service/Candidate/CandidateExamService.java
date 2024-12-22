@@ -1,8 +1,9 @@
 package com.exMate.backend.service.Candidate;
 
-import com.exMate.backend.DTO.ExamDetails;
-import com.exMate.backend.DTO.ExamResponse;
-import com.exMate.backend.DTO.QuestionResponse;
+
+import com.exMate.backend.DTO.ExamDetailsDTO;
+import com.exMate.backend.DTO.ExamResponseDTO;
+import com.exMate.backend.DTO.ExamQuestionResponseDTO;
 import com.exMate.backend.model.*;
 import com.exMate.backend.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,59 +54,76 @@ public class CandidateExamService {
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
     }
 
-    public ExamResponse startExam(int exam_id, HttpServletRequest request) {
+    public ExamResponseDTO startExam(int exam_id, HttpServletRequest request) {
         Exam exam = examRepository.findById(exam_id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
         if (exam.getEnd_date().isBefore(exam.getStart_date())) {
             throw new RuntimeException("End date cannot be before start date");
         }
+
+        Candidate candidate = candidateService.getCurrentCandidate(request)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+        ExamLog existingLog = examLogRepository.findByExamAndCandidate(exam, candidate)
+                .orElse(null);
+        if (existingLog == null) {
+            ExamLog examLog = new ExamLog();
+            examLog.setExam(exam);
+            examLog.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+            examLog.setCandidate(candidate);
+            examLog.setExam_flag(0);
+            examLogRepository.save(examLog);
+        }
+
         List<ExamQuestionMapping> mappings = examQuestionMappingRepository.findAllByExam(exam);
-        List<QuestionResponse> questions = new ArrayList<>();
+        List<ExamQuestionResponseDTO> questions = new ArrayList<>();
 
         for (ExamQuestionMapping mapping : mappings) {
             Question question = mapping.getQuestion();
             List<MCQOption> options = MCQOptionRepository.findAllByQuestion(question);
-            questions.add(new QuestionResponse(question, options));
+            questions.add(new ExamQuestionResponseDTO(question, options));
         }
-        ExamDetails examDetails = new ExamDetails(
+
+        ExamDetailsDTO examDetails = new ExamDetailsDTO(
                 exam.getDuration(),
                 exam.getTitle(),
                 exam.getDescription()
         );
-        ExamLog examLog = new ExamLog();
-        examLog.setExam(exam);
-        examLog.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        examLog.setCandidate(candidateService.getCurrentCandidate(request)
-                .orElseThrow(() -> new RuntimeException("Candidate not found")));
-        examLog.setExam_flag(0);
-        examLogRepository.save(examLog);
-        ExamResponse res = new ExamResponse(questions,examDetails);
+
+        ExamResponseDTO res = new ExamResponseDTO(questions, examDetails);
         return res;
     }
 
 
-    public void saveResponses(int exam_id, List<Response> responses) {
+    public String saveResponses(int exam_id, List<Response> responses, HttpServletRequest request) {
+        Candidate candidate = candidateService.getCurrentCandidate(request)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
         Exam exam = examRepository.findById(exam_id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with id: " + exam_id));
-
-        Candidate candidate = candidateService.getCurrentCandidate(null)
-                .orElseThrow(() -> new RuntimeException("Candidate not found"));
-
-        // Check if exam is already ended
         ExamLog examLog = examLogRepository.findByExamAndCandidate(exam, candidate)
                 .orElseThrow(() -> new RuntimeException("Exam log not found"));
-
         if (examLog.getExam_flag() == 1) {
             throw new RuntimeException("Exam has already been submitted");
         }
 
         for (Response response : responses) {
-            response.setCandidate(candidate);
-            response.setExam(exam);
-            response.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+            Response existingResponse = responseRepository.findByCandidateAndExamAndQuestion(
+                    candidate, exam, response.getQuestion()).orElse(null);
+
+            if (existingResponse != null) {
+                existingResponse.setOption(response.getOption());
+                existingResponse.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+                responseRepository.save(existingResponse);
+            } else {
+                response.setCandidate(candidate);
+                response.setExam(exam);
+                response.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+                responseRepository.save(response);
+            }
         }
-        responseRepository.saveAll(responses);
+
+        return "Responses saved successfully";
     }
+
 
     public String endExam(int exam_id, HttpServletRequest request) {
         Exam exam = examRepository.findById(exam_id)
@@ -113,13 +131,12 @@ public class CandidateExamService {
 
         Candidate candidate = candidateService.getCurrentCandidate(request)
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));
-
-        ExamLog examLog = new ExamLog();
-        examLog.setCandidate(candidate);
-        examLog.setExam(exam);
+        ExamLog examLog = examLogRepository.findByExamAndCandidate(exam, candidate)
+                .orElseThrow(() -> new RuntimeException("Exam log not found"));
         examLog.setTimestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         examLog.setExam_flag(1);
         examLogRepository.save(examLog);
+
         return "Exam ended successfully";
     }
 }

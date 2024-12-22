@@ -1,5 +1,6 @@
 package com.exMate.backend.controller.Candidate;
 
+import com.exMate.backend.DTO.ExamResponseDTO;
 import com.exMate.backend.service.Candidate.CandidateExamService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,20 +39,22 @@ public class CandidateExamController {
     @PostMapping("{exam_id}/start")
     public ResponseEntity<?> startExam(@PathVariable int exam_id, HttpServletRequest request){
         try {
-            return new ResponseEntity<>(candidateExamService.startExam(exam_id, request), HttpStatus.OK);
+            ExamResponseDTO response = candidateExamService.startExam(exam_id, request);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("{exam_id}/submit")
-    public ResponseEntity<?> saveResponses(@PathVariable int exam_id,
-                                           @RequestBody List<Response> responses) {
+    public ResponseEntity<?> saveResponses(@PathVariable int exam_id, @RequestBody List<Response> responses, HttpServletRequest request) {
         try {
-            candidateExamService.saveResponses(exam_id, responses);
-            return new ResponseEntity<>("Responses submitted successfully.", HttpStatus.OK);
+            String result = candidateExamService.saveResponses(exam_id, responses, request);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

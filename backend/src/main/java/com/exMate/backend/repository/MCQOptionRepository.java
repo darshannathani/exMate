@@ -5,6 +5,7 @@ import com.exMate.backend.model.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MCQOptionRepository extends JpaRepository<MCQOption, Integer> {
     void deleteByQuestion(Question question);
@@ -13,4 +14,4 @@ public interface MCQOptionRepository extends JpaRepository<MCQOption, Integer> {
 
     List<MCQOption> findAllByQuestion(Question question);
 
-}
+    }
