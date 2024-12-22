@@ -33,7 +33,7 @@ const AvailableExamCards = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCriteria, setFilterCriteria] = useState({
         difficulty: '',
-        status: 'True'
+        status: 'ACTIVE'
     });
     const fetchAvailableExams = async () => {
         try {
@@ -74,7 +74,7 @@ const AvailableExamCards = () => {
         }
     };
     const handleStartExam = (exam) => {
-        if (exam.status === 'True') {
+        if (exam.status === 'ACTIVE') {
             navigate(`/candidate/exam/${exam.exam_id}`);
         }
     };
@@ -177,13 +177,13 @@ const AvailableExamCards = () => {
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                     <QuestionMarkIcon fontSize="small" sx={{ mr: 1 }} />
                                     <Typography variant="body2">
-                                        Total Questions: {exam.mcq + exam.programming + exam.db}
+                                        Total Questions: {exam.logical + exam.programming + exam.technical}
                                     </Typography>
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                     <StarIcon fontSize="small" sx={{ mr: 1 }} />
                                     <Typography variant="body2">
-                                        Passing Score: {exam.passing_score}%
+                                        Passing Score: {exam.passing_score}
                                     </Typography>
                                 </Box>
                             </CardContent>
@@ -193,9 +193,9 @@ const AvailableExamCards = () => {
                                     color="primary" 
                                     fullWidth
                                     onClick={() => handleStartExam(exam)}
-                                    disabled={exam.status !== 'True'}
+                                    disabled={exam.status !== 'ACTIVE'}
                                 >
-                                    {exam.status === 'True' ? 'Start Exam' : 'Exam Inactive'}
+                                    {exam.status === 'ACTIVE' ? 'Start Exam' : 'Exam Inactive'}
                                 </Button>
                             </CardActions>
                         </Card>
