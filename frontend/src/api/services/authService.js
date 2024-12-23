@@ -19,5 +19,11 @@ export const authService = {
     getUserRole: async () => {
         const response = await api.post('/auth/me');
         return response.data;
+    },
+
+    tokenDecode: async () => {
+        const response = await api.get('/auth/token/decode');
+        console.log(response.data);
+        return response.data;
     }
 };

@@ -35,5 +35,25 @@ export const adminService = {
     registerAdmin: async (adminData) => {
         const response = await api.post('/admin/register/admin', adminData);
         return response.data;
+    },
+
+    computeExamResult: async (candidateId, examId) => {
+        const response = await api.post(`/admin/results/compute/${candidateId}/${examId}`);
+        return response.data;
+    },
+
+    getResultsByExam: async (examId) => {
+        const response = await api.get(`/admin/results/exam/${examId}`);
+        return response.data;
+    },
+
+    getResultByExamAndCandidate: async (examId, candidateId) => {
+        const response = await api.get(`/admin/results/exam/${examId}/candidate/${candidateId}`);
+        return response.data;
+    },
+
+    computeAllResult: async (examId) => {
+        const response = await api.post(`/admin/results/compute/exam/${examId}`);
+        return response.data;
     }
 };

@@ -15,13 +15,10 @@ import {
 import {
     People as PeopleIcon,
     Description as DescriptionIcon,
-    Settings as SettingsIcon,
     Assessment as AssessmentIcon,
     Assignment as AssignmentIcon,
     Person as PersonIcon,
-    MenuBook as MenuBookIcon,
     QuestionMark as QuestionMarkIcon,
-    Person2 as examIcon,
 } from '@mui/icons-material';
 
 const Dashboard = () => {
@@ -73,18 +70,6 @@ const Dashboard = () => {
                 path: '/admin/exam-management'
             },
             {
-                title: 'System Settings',
-                description: 'Configure system parameters and settings',
-                icon: <SettingsIcon sx={{ fontSize: 40, color: 'secondary.main' }} />,
-                path: '/admin/system-settings'
-            },
-            {
-                title: 'Results Overview',
-                description: 'View and analyze examination results',
-                icon: <AssessmentIcon sx={{ fontSize: 40, color: 'warning.main' }} />,
-                path: '/admin/results-overview'
-            },
-            {
                 title: 'Candidate Management',
                 description: 'Manage candidate accounts and data',
                 icon: <PeopleIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
@@ -93,7 +78,7 @@ const Dashboard = () => {
             {
                 title: 'Question Management',
                 description: 'Manage question bank and exam questions',
-                icons: <QuestionMarkIcon sx={{ fontSize: 40, color: '#f9a825' }} />,
+                icon: <QuestionMarkIcon sx={{ fontSize: 40, color: 'error.main' }} />,
                 path: '/admin/question-management'
             },
         ],
@@ -116,12 +101,6 @@ const Dashboard = () => {
                 icon: <PersonIcon sx={{ fontSize: 40, color: 'secondary.main' }} />,
                 path: '/candidate/profile'
             },
-            {
-                title: 'Study Materials',
-                description: 'Access study resources and guides',
-                icon: <MenuBookIcon sx={{ fontSize: 40, color: 'warning.main' }} />,
-                path: '/candidate/study-materials'
-            }
         ]
     };
 
