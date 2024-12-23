@@ -32,9 +32,11 @@ import {
     Search as SearchIcon,
     FilterList as FilterListIcon,
     Sort as SortIcon,
+    EmojiEvents as EmojiEventsIcon,
     Visibility as VisibilityIcon
 } from '@mui/icons-material';
 import { examService } from '../../api/services/examService';
+import { adminService } from '../../api/services/adminService';
 const ExamManagement = () => {
     let a=1
     const [exams, setExams] = useState([]);
@@ -52,21 +54,50 @@ const ExamManagement = () => {
     const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
     const [examQuestions, setExamQuestions] = useState([]);
     const [tabValue, setTabValue] = useState(0);
+    const [examResults, setExamResults] = useState([]);
+    const [resultsComputed, setResultsComputed] = useState(false);
     const [sortCriteria, setSortCriteria] = useState({
         field: 'title',
         direction: 'asc'
     });
+
+    const handleComputeResults = async (examId) => {
+        try {
+            await adminService.computeAllResult(examId);
+            alert('Results computed successfully!');
+            await fetchExamResults(examId);
+            setResultsComputed(true);
+        } catch (error) {
+            console.error('Failed to compute results', error);
+            alert('Failed to compute results.');
+        }
+    };
+
+    const fetchExamResults = async (examId) => {
+        try {
+            const results = await adminService.getResultsByExam(examId);
+            setExamResults(results);
+            setResultsComputed(results && results.length > 0);
+        } catch (error) {
+            console.error('Failed to fetch results', error);
+            setExamResults([]);
+            setResultsComputed(false);
+        }
+    };
+
     const handleViewExamDetails = async (exam) => {
         setSelectedExam(exam);
-    
+
         try {
             const questions = await examService.getQuestionsByExam(exam.exam_id);
             setExamQuestions(Array.isArray(questions) ? questions : []);
+            await fetchExamResults(exam.exam_id);
             setDetailsDialogOpen(true);
         } catch (error) {
-            console.error('Failed to fetch exam questions', error);
+            console.error('Failed to fetch exam details', error);
             setExamQuestions([]);
-            alert('Failed to fetch exam questions.');
+            setExamResults([]);
+            alert('Failed to fetch exam details.');
         }
     };
     const [newExam, setNewExam] = useState({
@@ -386,6 +417,14 @@ const ExamManagement = () => {
                                             <EditIcon />
                                         </IconButton>
                                     </Tooltip>
+                                    <Tooltip title="Release Results">
+                                        <IconButton
+                                            onClick={() => handleComputeResults(exam.exam_id)}
+                                            sx={{ color: '#4CAF50' }}
+                                        >
+                                            <EmojiEventsIcon />
+                                        </IconButton>
+                                    </Tooltip>
                                     <Tooltip title="Delete">
                                         <IconButton
                                             onClick={() => handleDeleteExam(exam.exam_id)}
@@ -539,12 +578,13 @@ const ExamManagement = () => {
                 >
                 <DialogTitle>Exam Details</DialogTitle>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs 
+                <Tabs 
                         value={tabValue} 
                         onChange={(e, newValue) => setTabValue(newValue)}
                     >
                         <Tab label="Exam Details" />
                         <Tab label="Questions" />
+                        <Tab label="Results" />
                     </Tabs>
                 </Box>
                 <DialogContent>
@@ -596,6 +636,54 @@ const ExamManagement = () => {
                                                 <TableRow>
                                                     <TableCell colSpan={3} align="center">
                                                         No questions available
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </Box>
+                        )}
+                        {tabValue === 2 && (
+                            <Box>
+                                {!resultsComputed && (
+                                    <Button 
+                                        variant="contained" 
+                                        color="primary" 
+                                        onClick={() => handleComputeResults(selectedExam.exam_id)}
+                                        sx={{ mb: 2 }}
+                                    >
+                                        Compute Results
+                                    </Button>
+                                )}
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Student ID</TableCell>
+                                                <TableCell>Name</TableCell>
+                                                <TableCell>Score</TableCell>
+                                                <TableCell>Status</TableCell>
+                                                <TableCell>Completion Time</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {examResults && examResults.length > 0 ? (
+                                                examResults.map((result) => (
+                                                    <TableRow key={result.student_id}>
+                                                        <TableCell>{result.student_id}</TableCell>
+                                                        <TableCell>{result.student_name}</TableCell>
+                                                        <TableCell>{result.score}</TableCell>
+                                                        <TableCell>
+                                                            {result.score >= selectedExam.passing_score ? 'Pass' : 'Fail'}
+                                                        </TableCell>
+                                                        <TableCell>{result.completion_time}</TableCell>
+                                                    </TableRow>
+                                                ))
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={5} align="center">
+                                                        {resultsComputed ? 'No results available' : 'Results not computed yet'}
                                                     </TableCell>
                                                 </TableRow>
                                             )}

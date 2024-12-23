@@ -21,20 +21,12 @@ export const adminRoutes = [
         element: <SystemSettings />,
     },
     {
-        path: '/admin/results-overview',
-        element: <ResultsOverview />,
-    },
-    {
         path: '/admin/candidate-management',
         element: <CandidateManagement />,
     },
     {
         path: '/admin/exam-management',
         element: <ExamManagement />,
-    },
-    {
-        path: '/admin/system-settings',
-        element: <SystemSettings />,
     },
     {
         path: '/admin/results-overview',
