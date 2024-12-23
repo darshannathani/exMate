@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface ExamLogRepository extends JpaRepository<ExamLog, Integer> {
     Optional<ExamLog> findByExamAndCandidate(Exam exam, Candidate candidate);
+
+    Optional<ExamLog> findByCandidateAndExam(Candidate candidate, Exam exam);
 }

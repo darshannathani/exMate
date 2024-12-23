@@ -15,4 +15,6 @@ public interface ResponseRepository extends JpaRepository<Response, Integer> {
     Optional<Response> findByCandidateAndExamAndQuestion(Candidate candidate, Exam exam, Question question);
 
     List<Response> findByCandidateAndExam(Candidate candidate, Exam exam);
+
+    List<Response> findByExam(Exam exam);
 }

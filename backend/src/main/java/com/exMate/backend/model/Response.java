@@ -38,7 +38,7 @@ public class Response {
     @ToString.Exclude
     private MCQOption option;
 
-    private boolean is_correct;
+    private String is_correct;
 
     private String programming_response;
 

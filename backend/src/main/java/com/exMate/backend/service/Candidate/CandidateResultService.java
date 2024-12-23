@@ -1,6 +1,5 @@
 package com.exMate.backend.service.Candidate;
 
-
 import com.exMate.backend.DTO.CandidateResultDTO;
 import com.exMate.backend.DTO.QuestionResponseDTO;
 import com.exMate.backend.DTO.SectionScoreDTO;
@@ -67,12 +66,14 @@ public class CandidateResultService {
 
     private SectionScoreDTO calculateSectionScore(List<Response> sectionResponses) {
         int totalQuestions = sectionResponses.size();
-        long correctAnswers = sectionResponses.stream().filter(Response::is_correct).count();
+        long correctAnswers = sectionResponses.stream()
+                .filter(r -> "true".equalsIgnoreCase(r.getIs_correct()))
+                .count();
         int totalMarks = sectionResponses.stream()
                 .mapToInt(r -> r.getQuestion().getMarks())
                 .sum();
         int obtainedMarks = sectionResponses.stream()
-                .filter(Response::is_correct)
+                .filter(r -> "true".equalsIgnoreCase(r.getIs_correct()))
                 .mapToInt(r -> r.getQuestion().getMarks())
                 .sum();
 
@@ -110,7 +111,7 @@ public class CandidateResultService {
                         .questionText(response.getQuestion().getText())
                         .sectionType(response.getQuestion().getSection_type())
                         .marks(response.getQuestion().getMarks())
-                        .correct(response.is_correct())
+                        .correct("true".equalsIgnoreCase(response.getIs_correct()))  // Convert String to boolean
                         .selectedOption(response.getOption() != null ? response.getOption().getOption_text() : null)
                         .programmingResponse(response.getProgramming_response())
                         .build())

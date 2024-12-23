@@ -93,7 +93,6 @@ public class CandidateExamService {
         return res;
     }
 
-
     public String saveResponses(int exam_id, List<Response> responses, HttpServletRequest request) {
         Candidate candidate = candidateService.getCurrentCandidate(request)
                 .orElseThrow(() -> new RuntimeException("Candidate not found"));

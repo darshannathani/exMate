@@ -14,6 +14,12 @@ import java.util.List;
 public class ExamResultController {
     private final ExamResultService examResultService;
 
+    @PostMapping("/compute/exam/{examId}")
+    public ResponseEntity<List<ExamResult>> computeResultsForExam(@PathVariable int examId) {
+        List<ExamResult> results = examResultService.computeAndSaveResultsForExam(examId);
+        return ResponseEntity.ok(results);
+    }
+
     @PostMapping("/compute/{candidateId}/{examId}")
     public ResponseEntity<ExamResult> computeResult(@PathVariable int candidateId, @PathVariable int examId) {
         ExamResult result = examResultService.computeAndSaveResult(candidateId, examId);
