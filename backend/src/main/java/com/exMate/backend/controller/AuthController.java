@@ -2,6 +2,7 @@ package com.exMate.backend.controller;
 
 import com.exMate.backend.payload.LoginRequest;
 import com.exMate.backend.security.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,28 @@ public class AuthController {
             return new ResponseEntity<>(tokenProvider.getRole(jwt), HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/token/decode")
+    public ResponseEntity<?> decodeToken(HttpServletRequest request) {
+        try {
+            String jwt = tokenProvider.getJwtFromCookies(request);
+            if (jwt == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("No JWT token found in cookies");
+            }
+
+            if (!tokenProvider.validateToken(jwt)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid JWT token");
+            }
+
+            Claims claims = tokenProvider.getAllClaimsFromToken(jwt);
+            return ResponseEntity.ok(claims);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error decoding token: " + e.getMessage());
         }
     }
 }

@@ -109,4 +109,12 @@ public class JwtTokenProvider {
                 .maxAge(0)
                 .build();
     }
+
+    public Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
 }
