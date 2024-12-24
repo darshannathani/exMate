@@ -33,14 +33,9 @@ const ExamResultPage = () => {
         const initializeData = async () => {
             try {
                 setLoading(true);
-                // Use authService to decode the token
                 const decodedToken = await authService.tokenDecode();
-                
-                // Extract candidateId from sub field
                 const candidateId = decodedToken.sub;
                 setCandidateId(candidateId);
-
-                // Fetch results if we have a valid candidateId
                 if (candidateId) {
                     const response = await candidateService.getAllResults(candidateId);
                     setResults(response);
